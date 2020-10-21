@@ -1,3 +1,6 @@
+#Pytho{\}
+.tmp_pythoN/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
