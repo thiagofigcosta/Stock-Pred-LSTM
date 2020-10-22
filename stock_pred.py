@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import re
 import math
+import sys, getopt
 from datetime import datetime
 from sklearn.preprocessing import MinMaxScaler
 from matplotlib import pyplot as plt
@@ -63,6 +64,13 @@ def filterNullLines(content){
         }
     }
     return content[:-1]
+}
+
+def removeStrPrefix(text, prefix){
+    if text.startswith(prefix){
+        return text[len(prefix):]
+    }
+    return text 
 }
 
 def jsonToCSV(json_str){
@@ -452,9 +460,9 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
-        hyperparameters['max_epochs']=1
+        hyperparameters['max_epochs']=100
         hyperparameters['patience_epochs']=10
-        hyperparameters['batch_size']=2
+        hyperparameters['batch_size']=1
         hyperparameters['stateful']=True
         hyperparameters['dropout_values']=[0,0]
         hyperparameters['lstm_l1_size']=60
@@ -479,7 +487,7 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
         hyperparameters['dropout_values']=[.2,.2,.2]
         hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
         hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
-        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l3_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
         hyperparameters['normalize']=True
         hyperparameters['optimizer']='adam'
         hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
@@ -607,8 +615,6 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
         print('Model History saved at {};'.format(model_history_path)) 
     }
 
-    
-    
     Y_test_predicted = model.predict(X_test)
     Y_train_predicted = model.predict(X_train)
 
@@ -696,7 +702,7 @@ def downloadAllReferenceDatasets(){
     }
 }
 
-def trainAllProposedTestModels(dataset_paths,start_at=0){
+def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
     last_test_model_id=None
     test_id=1
     while last_test_model_id is None{
@@ -705,38 +711,87 @@ def trainAllProposedTestModels(dataset_paths,start_at=0){
         }
         test_id+=1
     }
-    for i in range(start_at+1,last_test_model_id+1){
-        loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=False,plot_graphs=False)
+    for i in range(start_at+1,last_test_model_id){
+        print("Model {}".format(i))
+        loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
-loadTrainAndSaveModel(model_id=2,dataset_paths='datasets/GE_I1d_F0_T2020-10.csv',load_instead_of_training=False,plot_graphs=False)
-# downloadAllReferenceDatasets()
-# trainAllProposedTestModels('datasets/GE_I1d_F0_T2020-10.csv')
+def main(argv){
+    HELP_STR=r'Pytho{N}.py stock_pred.py [-d|--download-datasets] [--test-all-test-trained-models [--start-at <value>] --dataset-paths <values>] [--train-all-test-models [--start-at <value>] --dataset-paths <values>] [--download-stock [--use-hour-interval] --stock-name --start-date <value> --end-date <value>]'
+    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models"]
+    modules_to_run=[]
+    args=[]
+    
+    use_hour_interval=False
+    stock_name=''
+    start_date=''
+    end_date=''
+    start_at=0
+    dataset_paths=[]
 
-# def main(argv):
-#     HELP_STR=r'Pytho{N}.py [-v <value>]'
-#     python_ver=3
-#     args=[]
-#     try:
-#         opts, args = getopt.getopt(argv,"hv:",["version="])
-#     except getopt.GetoptError:
-#         print (HELP_STR)
-#         sys.exit(2)
-#     for opt, arg in opts:
-#         if opt == '-h':
-#             print (HELP_STR)
-#             sys.exit()
-#         elif opt in ("-v", "--version"):
-#             python_ver=arg
-#     sourcename=""
-#     for arg in args:
-#         if re.match(r'^.*\.py$', arg):
-#             sourcename=arg
-#             args.remove(arg)
-#             break
-#     PythoN(python_ver,sourcename,' '.join(args))
+    try{
+        opts, args = getopt.getopt(argv,"hd",["use-hour-interval","stock-name","start-date=","end-date=","start-at=","dataset-paths="]+modules)
+    }except getopt.GetoptError{
+        print (HELP_STR)
+        sys.exit(2)
+    }
+    for opt, arg in opts{
+        if opt == '-h'{
+            print (HELP_STR)
+            sys.exit()
+        }elif opt == "--use-hour-interval"{
+            use_hour_interval=True
+        }elif opt == "--stock-name"{
+            stock_name=arg
+        }elif opt == "--start-date"{
+            try{
+                extractFromStrDate(arg)
+            }except{
+                raise Exception('Date must be in format {}'.format(DATE_FORMAT))
+            }
+            start_date=arg
+        }elif opt == "--end-date"{
+            try{
+                extractFromStrDate(arg)
+            }except{
+                raise Exception('Date must be in format {}'.format(DATE_FORMAT))
+            }
+            end_date=arg
+        }elif opt == "--start-at"{
+            start_at=int(arg)
+        }elif opt == "--dataset-paths"{
+            dataset_paths=arg.split(',')
+        }else{
+            modules_to_run.append(opt)
+        }
+    }
+    for module in modules_to_run{
+        module=removeStrPrefix(module,'--')
+        if module == "download-datasets"{
+            downloadAllReferenceDatasets()
+        }elif module == "train-all-test-models"{
+            trainAllProposedTestModels(dataset_paths,start_at=start_at)
+        }elif module == "test-all-test-trained-models"{ 
+            trainAllProposedTestModels(dataset_paths,start_at=start_at,plot_and_load=True)
+        }elif module == "download-stock"{
+            start_day,start_month,start_year=extractFromStrDate(start_date)
+            end_day,end_month,end_year=extractFromStrDate(end_date)
+            if use_hour_interval {
+                filename=DATASET_PATH+'{}_I1h_F{}{}{}_T{}{}{}.csv'.format(stock,start_year,start_month,start_day,end_year,end_month,end_day)
+                getStockOnlineHistoryOneHour(stock,filename,start_timestamp=stringToSTimestamp(start_date),end_timestamp=stringToSTimestamp(end_date))
+            }else{
+                filename=DATASET_PATH+'{}_I1d_F{}{}{}_T{}{}{}.csv'.format(stock,start_year,start_month,start_day,end_year,end_month,end_day)
+                getStockHistoryOneDay(stock,filename,start_date=start_date,end_date=end_date)
+            }
+        }else{
+            print("Unkown argument {}".format(module))
+            print(HELP_STR)
+            sys.exit(2)
+        }
+    }
+}
 
-
-# if __name__ == "__main__":
-#     main(sys.argv[1:])
+if __name__ == "__main__"{
+    main(sys.argv[1:])
+}
