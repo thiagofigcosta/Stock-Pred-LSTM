@@ -1,0 +1,32 @@
+{
+    "accuracy":[
+        0.069585420191288
+    ],
+    "cosine_similarity":[
+        0.9391781687736511
+    ],
+    "loss":[
+        0.0011734090512618423
+    ],
+    "mean_absolute_error":[
+        0.0176132433116436
+    ],
+    "mean_squared_error":[
+        0.0011734090512618423
+    ],
+    "val_accuracy":[
+        0.059168703854084015
+    ],
+    "val_cosine_similarity":[
+        0.9891891479492188
+    ],
+    "val_loss":[
+        0.000843514280859381
+    ],
+    "val_mean_absolute_error":[
+        0.014525700360536575
+    ],
+    "val_mean_squared_error":[
+        0.000843514280859381
+    ]
+}

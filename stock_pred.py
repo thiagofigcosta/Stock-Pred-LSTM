@@ -1,0 +1,742 @@
+#!/bin/python3
+# -*- coding: utf-8 -*-
+
+import time
+import urllib
+import urllib.request
+import os
+import codecs
+import json
+import pandas as pd
+import numpy as np
+import re
+import math
+from datetime import datetime
+from sklearn.preprocessing import MinMaxScaler
+from matplotlib import pyplot as plt
+import joblib
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
+from keras.models import Sequential, load_model
+from keras.layers import Dense, Dropout
+from keras.layers import LSTM
+from keras.callbacks import ModelCheckpoint, EarlyStopping
+
+
+DATASET_PATH='datasets/'
+MODELS_PATH='saved_models/'
+DATE_FORMAT='%d/%m/%Y'
+DATETIME_FORMAT='"%d/%m/%Y %H:%M:%S"'
+
+
+def createFolderIfNotExists(path){
+    if not os.path.exists(path){
+        os.makedirs(path, exist_ok=True)
+    }
+}
+
+def stringToSTimestamp(string,include_time=False){
+    if not include_time {
+        return int(time.mktime(datetime.strptime(string,DATE_FORMAT).timetuple()))
+    }else{
+        return int(time.mktime(datetime.strptime(string,DATETIME_FORMAT).timetuple()))
+    }
+}
+
+def sTimestampToString(timestamp,include_time=False){
+    if not include_time {
+        return datetime.fromtimestamp(timestamp).strftime(DATE_FORMAT)
+    }else{
+        return datetime.fromtimestamp(timestamp).strftime(DATETIME_FORMAT)
+    }
+}
+
+def filterNullLines(content){
+    lines=content.split('\n')
+    content=''
+    for line in lines{
+        if not re.match(r'((.*null|nan),.*|.*,(null|nan).*)',line, flags=re.IGNORECASE){
+            content+=line+'\n'
+        }
+    }
+    return content[:-1]
+}
+
+def jsonToCSV(json_str){
+    parsed_json=json.loads(json_str)
+    timestamps=parsed_json['spark']['result'][0]['response'][0]['timestamp']
+    close_values=parsed_json['spark']['result'][0]['response'][0]['indicators']['quote'][0]['close']
+
+    if len(timestamps)!=len(close_values){
+        raise Exception('Stock timestamp array({}) with different size from stock values array({})'.format(len(timestamps),len(close_values)))
+    }
+
+    CSV='timestamp,Date,Close\n'
+    for i in range(len(timestamps)){
+        CSV+='{},{},{}\n'.format(timestamps[i],sTimestampToString(timestamps[i],True),close_values[i])
+    }
+    return CSV[:-1]
+}
+
+def getStockHistoryOneDay(stock_name,filename,start_date=sTimestampToString(0),end_date=sTimestampToString(int(time.time()))){
+    base_url='https://query1.finance.yahoo.com/v7/finance/download/{}?period1={}&period2={}&interval=1d&events=history&includeAdjustedClose=true'.format(stock_name,stringToSTimestamp(start_date),stringToSTimestamp(end_date))
+    print(base_url)
+    with urllib.request.urlopen(base_url) as response{ 
+        if response.code == 200{
+            content=response.read().decode('utf-8')
+            createFolderIfNotExists(DATASET_PATH)
+            if filename.startswith(DATASET_PATH){
+                path=filename
+            }else{
+                path=DATASET_PATH+filename
+            }
+            content=filterNullLines(content)
+            with codecs.open(path, "w", "utf-8") as file{
+                file.write(content)
+            }
+        }else{
+            raise Exception('Response code {}'.format(response.code))
+        }
+    }
+}
+
+def getStockOnlineHistoryOneHour(stock_name,filename,data_range='730d',start_timestamp='',end_timestamp=''){
+    # data_range maximum value is 730d
+    # data_range minimum value is 1m
+    if not start_timestamp or not end_timestamp{
+        base_url='https://query1.finance.yahoo.com/v7/finance/spark?symbols={}&range={}&interval=60m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance'.format(stock_name,data_range)
+    }else{
+        base_url='https://query1.finance.yahoo.com/v7/finance/spark?symbols={}&period1={}&period2={}&interval=60m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance'.format(stock_name,start_timestamp,end_timestamp)
+    } 
+    print(base_url)
+    with urllib.request.urlopen(base_url) as response{
+        if response.code == 200{
+            content=response.read().decode('utf-8')
+            createFolderIfNotExists(DATASET_PATH)
+            if filename.startswith(DATASET_PATH){
+                path=filename
+            }else{
+                path=DATASET_PATH+filename
+            }
+            content=jsonToCSV(content)
+            content=filterNullLines(content)
+            with codecs.open(path, "w", "utf-8") as file{
+                file.write(content)
+            }
+        }else{
+            raise Exception('Response code {} - {}'.format(response.code))
+        }
+    }
+}
+
+def filenameFromPath(path,get_extension=False){
+    if get_extension {
+        return re.search(r'.*\/(.*\..+)', path).group(1)
+    }else{
+        return re.search(r'.*\/(.*)\..+', path).group(1)
+    }
+} 
+
+def extractFromStrDate(str_date){
+    re_result=re.search(r'([0-9][0-9])\/([0-9][0-9])\/([0-9][0-9][0-9][0-9]|[0-9][0-9])', str_date)
+    return re_result.group(1),re_result.group(2),re_result.group(3)
+}   
+
+def saveObj(obj,path){ 
+    joblib.dump(obj, path)
+}
+
+def loadObj(path){
+    return joblib.load(path)
+}
+
+def parseHist(history){
+    new_hist = {}
+    for key in list(history.history.keys()){
+        new_hist[key]=history.history[key]
+        if type(history.history[key]) == np.ndarray{
+            new_hist[key] = history.history[key].tolist()
+        }elif type(history.history[key]) == list{
+           if  type(history.history[key][0]) == np.float64{
+                new_hist[key] = list(map(float, history.history[key]))
+            }
+        }
+    }    
+    return new_hist
+}
+
+def saveHist(parsed_history,path){
+    with codecs.open(path, 'w', encoding='utf-8') as file{
+        json.dump(parsed_history, file, separators=(',', ':'), sort_keys=True, indent=4) 
+    }
+}
+
+def loadHist(path){
+    with codecs.open(path, 'r', encoding='utf-8') as file{
+        n = json.loads(file.read())
+    }
+    return n
+}
+
+def modeNextDifference(array){
+    diff=[]
+    for i in range(len(array)-1){
+        if str(type(array[i]))=="<class 'pandas._libs.tslibs.timestamps.Timestamp'>"{
+            diff.append(float((array[i+1]-array[i]) / np.timedelta64(1, 'h')))
+        }else{
+            diff.append(array[i+1]-array[i])
+        }
+    }
+    return max(set(diff), key=diff.count)
+}
+
+def unwrapFoldedArray(array,use_last=False,use_mean=False,magic_offset=0){
+    fold_size=len(array[0])
+    array_size=len(array)
+    unwraped_size=array_size+fold_size-1
+    if use_mean{
+        aux_sum_array_tuple=([0]*unwraped_size,[0]*unwraped_size)
+        for i in range(magic_offset,array_size){
+            for j in range(fold_size){
+                aux_sum_array_tuple[0][i+j]+=array[i][j]
+                aux_sum_array_tuple[1][i+j]+=1
+            }
+        }
+        unwraped=[]
+        for i in range(magic_offset,unwraped_size){
+            unwraped.append(aux_sum_array_tuple[0][i]/aux_sum_array_tuple[1][i])
+        }
+    }else{
+        position=0
+        if use_last{
+            #then use last
+            position=fold_size-1
+        }
+        unwraped=[array[i][position] for i in range(magic_offset,array_size)]
+        for i in range(1,fold_size){
+            unwraped.append(array[array_size-1][i])
+        }
+    }
+    return unwraped    
+}
+
+# input_size is the amount of data points taken into account to predict output_size amount of data points
+def loadDataset(paths,input_size,output_size,train_fields=['Close'],result_field='Close',index_field=None,normalize=False,plot_dataset=False,train_percent=1,val_percent=0){
+    if val_percent>1 or train_percent>1 or val_percent<0 or train_percent<0{
+        raise Exception('Train + validation percent must be smaller than 1 and bigger than 0')
+    }
+
+    if not isinstance(paths, list){
+        paths=[paths]
+    }
+    frames=[]
+    dataset_name=[]
+    for path in paths{
+        frames.append(pd.read_csv(path))
+        dataset_name.append(filenameFromPath(path))
+    }
+    dataset_name='_'.join(dataset_name)
+    full_data=pd.concat(frames)
+
+    date_index_array=None
+    if index_field is not None{
+        date_index_array = pd.to_datetime(full_data[index_field])
+        full_data[index_field] = date_index_array
+        full_data.set_index(index_field, inplace=True)
+    }
+
+    fields=train_fields
+
+    if result_field not in fields{
+        fields.append(result_field)
+    }
+    fields.remove(result_field)
+    fields.append(result_field) # ensure that the last one is the result field
+
+    full_data=full_data[fields]
+
+    if plot_dataset{ 
+        plt.plot(full_data, label='Stock Values of {}'.format(dataset_name))
+        plt.legend(loc='best')
+        plt.show() 
+    }
+
+    full_data=full_data.values.reshape(full_data.shape[0],len(fields))
+
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    if normalize{
+        scaler = scaler.fit(full_data)
+        print('Min: {}, Max: {}'.format(scaler.data_min_, scaler.data_max_))
+        full_data = scaler.transform(full_data)
+        if plot_dataset{ 
+            plt.plot(full_data, label='Stock Values of {} normalized'.format(dataset_name))
+            plt.legend(loc='best')
+            plt.show() 
+        }
+    }
+
+    data_size=len(full_data)
+
+    X_full_data=[]
+    Y_full_data=[]
+    for i in range(input_size,data_size-output_size+1){
+        X_full_data.append(np.array([x[:len(train_fields)] for x in full_data[i-input_size:i]]))
+        Y_full_data.append(np.array([x[-1] for x in full_data[i:i+output_size]]))
+    }
+    # going beyond labels
+    for i in range(data_size-output_size+1,data_size+1){
+        X_full_data.append(np.array([x[:len(train_fields)] for x in full_data[i-input_size:i]]))
+    }
+    X_full_data=np.array(X_full_data)
+    Y_full_data=np.array(Y_full_data)
+
+    train_idx=int(len(X_full_data)*train_percent)
+
+    X_train_full=X_full_data[:train_idx]
+    Y_train_full=Y_full_data[:train_idx]
+    X_test=X_full_data[train_idx:]
+    Y_test=Y_full_data[train_idx:]
+    X_val=[]
+    Y_val=[] 
+
+    date_index_array=date_index_array.tolist()
+    train_date_index=date_index_array[:train_idx+input_size+1]
+    test_date_index=date_index_array[train_idx:]
+    minutes_step=int(modeNextDifference(date_index_array)*60)
+    last_date=date_index_array[len(date_index_array)-1].to_numpy()
+    for i in range(1,output_size){
+        new_date=pd.to_datetime(last_date+np.timedelta64(minutes_step*i,'m'))
+        test_date_index.append(new_date)
+    }
+
+    if val_percent>0{
+        X_train,X_val,Y_train,Y_val = train_test_split(X_train_full, Y_train_full, test_size=val_percent)
+    }
+
+    return X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,X_train_full,Y_train_full,train_date_index,test_date_index,dataset_name
+}
+
+def processPredictedArray(Y_pred){
+    magic_offset=1 # align pred with real
+    Y_pred_first_val=unwrapFoldedArray(Y_pred,magic_offset=0)
+    Y_pred_last_val=unwrapFoldedArray(Y_pred,use_last=True,magic_offset=0)
+    Y_pred_mean_val=unwrapFoldedArray(Y_pred,use_mean=True,magic_offset=0)
+
+    Y_pred_first_val=Y_pred_first_val[magic_offset:]
+    Y_pred_last_val=Y_pred_last_val[magic_offset:]
+    Y_pred_mean_val=Y_pred_mean_val[magic_offset:]
+    Y_pred_fl_mean_val=[(Y_pred_first_val[i]+Y_pred_last_val[i])/2 for i in range(len(Y_pred_first_val))]
+
+    return Y_pred_first_val, Y_pred_last_val, Y_pred_mean_val, Y_pred_fl_mean_val
+}
+
+def getStockReturn(stock_array){
+    shifted_stock_array=stock_array[1:]+[0]
+    stock_delta=((np.array(shifted_stock_array)-np.array(stock_array))[:-1]).tolist()#+[None]
+    return stock_delta
+}
+
+def sum(array){
+    sum=0
+    for el in array{
+        sum+=el
+    }
+    return sum
+}
+
+def mean(array){
+    return sum(array)/len(array)
+}
+
+def printDict(dictionary,name=None){
+    start=''
+    if name is not None{
+        print('{}:'.format(name))
+        start='\t'
+    }
+    for key,value in dictionary.items(){
+        print('{}{}: {}'.format(start,key,value))
+    }
+}
+
+def analyzeStrategiesAndClassMetrics(stock_real_array,stock_pred_array){
+    real_stock_delta=getStockReturn(stock_real_array)
+    pred_stock_delta=getStockReturn(stock_pred_array)
+
+    real_movement_encoded=[ 1 if r>0 else 0 for r in real_stock_delta]
+    pred_movement_encoded=[ 1 if pred_stock_delta[i]>0 else 0 for i in range(len(real_stock_delta))]
+    real_movement=[ 'Up' if r>0 else 'Down' for r in real_stock_delta]
+    pred_movement=[ 'Up' if r>0 else 'Down' for r in pred_stock_delta]
+    correct_movement=[ 1 if real_movement[i]==pred_movement[i] else 0 for i in range(len(real_stock_delta))]
+    accuracy=mean(correct_movement)
+
+    swing_return=[real_stock_delta[i] if pred_movement[i] == 'Up' else 0 for i in range(len(real_stock_delta))]
+    swing_return=sum(swing_return) # se a ação subir investe, caso contrario não faz nada
+    buy_and_hold_return=sum(real_stock_delta) # compra a ação e segura durante todo o periodo
+
+    class_metrics={'f1_monark':f1_score(real_movement_encoded,pred_movement_encoded),'accuracy':accuracy,'precision':precision_score(real_movement_encoded,pred_movement_encoded),'recall':recall_score(real_movement_encoded,pred_movement_encoded),'roc auc':roc_auc_score(real_movement_encoded,pred_movement_encoded)}
+    return swing_return, buy_and_hold_return, class_metrics
+}
+
+def autoBuy13(total_money_to_invest,stock_real_array,stock_pred_array,saving_percentage=0){
+    real_stock_delta=getStockReturn(stock_real_array)
+    pred_stock_delta=getStockReturn(stock_pred_array)
+
+    corret_predicts_in_a_row=0
+    savings_money=0
+    current_money=total_money_to_invest
+    for i in range(len(real_stock_delta)){
+        if pred_stock_delta[i] > 0{
+            stock_buy_price=stock_real_array[i-1]
+            stock_predicted_sell_price=stock_pred_array[i]
+            predicted_valuing=stock_predicted_sell_price/stock_buy_price
+            max_stocks_possible=math.floor(current_money/stock_buy_price)
+            stocks_to_buy=1 # TODO algo to select this based on randomness, corret_predicts_in_a_row and predicted_valuing # define max limit of bought stocks per iter
+            investiment_cost=stocks_to_buy*stock_buy_price
+            current_money-=investiment_cost
+            stock_sell_price=stock_real_array[i]
+            brute_return=stocks_to_buy*stock_sell_price
+            if brute_return-investiment_cost<0{
+                corret_predicts_in_a_row=0
+                current_money+=stocks_to_buy*stock_sell_price
+            }else{
+                corret_predicts_in_a_row+=1
+                current_money+=stocks_to_buy*stock_sell_price*(1-saving_percentage)
+                savings_money+=stocks_to_buy*stock_sell_price*saving_percentage
+            }
+        }
+    }
+    return current_money+savings_money
+}
+
+def calculateLayerOutputSize(layer_input_size,network_output_size,train_data_size=0,a=2,second_formula=False){
+    if not second_formula{
+        return int(math.ceil(train_data_size/(a*(layer_input_size+network_output_size))))
+    }else{
+        return int(math.ceil(2/3*(layer_input_size+network_output_size)))
+    }
+}
+
+def modeler(id=0,train_size=13666){ # default train_size based on GE data
+    model_base_name='model_id-{}'.format(id)
+    hyperparameters={}
+    if id==0{
+        pass # final model will be here
+    }elif id==1{
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=40
+        hyperparameters['forward_samples']=15
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=5
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[0,0]
+        hyperparameters['lstm_l1_size']=60
+        hyperparameters['lstm_l2_size']=35
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==2{
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=40
+        hyperparameters['forward_samples']=15
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=1
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=2
+        hyperparameters['stateful']=True
+        hyperparameters['dropout_values']=[0,0]
+        hyperparameters['lstm_l1_size']=60
+        hyperparameters['lstm_l2_size']=35
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==3{ #cams
+        a=4 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=30
+        hyperparameters['forward_samples']=15
+        hyperparameters['lstm_layers']=3
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=1
+        hyperparameters['stateful']=True
+        hyperparameters['dropout_values']=[.2,.2,.2]
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==4 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=59
+        hyperparameters['forward_samples']=15
+        hyperparameters['lstm_layers']=3
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=5
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.2,.2,.2]
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l3_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }else{
+        return None
+    }
+
+    hyperparameters['id']=id
+    hyperparameters['base_name']=model_base_name
+    if hyperparameters['stateful']{
+        hyperparameters['batch_size']=1 # batch size must be one for stateful
+    }
+    return hyperparameters
+}
+
+def modelBuilder(hyperparameters,stock_name,print_summary=True){
+    model = Sequential()
+    hyperparameters['lstm_l0_size']=hyperparameters['backwards_samples']
+    for l in range(hyperparameters['lstm_layers']){
+        if hyperparameters['input_features']>1 and hyperparameters['amount_companies']>1{
+            raise Exception('Only input_features or amount_companies must be greater than 1')
+        }
+        deepness=1
+        if hyperparameters['input_features']>1{
+            deepness=hyperparameters['input_features']
+        }elif hyperparameters['amount_companies']>1{
+            deepness=hyperparameters['amount_companies']
+        }
+        input_shape=(hyperparameters['lstm_l{}_size'.format(l)],deepness)
+        if hyperparameters['stateful'] {
+            if l==0{
+                batch_input_shape=(hyperparameters['batch_size'],hyperparameters['lstm_l{}_size'.format(l)],deepness)
+                model.add(LSTM(hyperparameters['lstm_l{}_size'.format(l+1)],batch_input_shape=batch_input_shape, stateful=hyperparameters['stateful'], return_sequences=True if l+1<hyperparameters['lstm_layers'] else False))
+            }else{
+                model.add(LSTM(hyperparameters['lstm_l{}_size'.format(l+1)],input_shape=input_shape, stateful=hyperparameters['stateful'], return_sequences=True if l+1<hyperparameters['lstm_layers'] else False))
+            }
+        }else{
+            model.add(LSTM(hyperparameters['lstm_l{}_size'.format(l+1)],input_shape=input_shape, stateful=hyperparameters['stateful'], return_sequences=True if l+1<hyperparameters['lstm_layers'] else False))
+        }
+        if hyperparameters['dropout_values'][l]>0{
+            model.add(Dropout(hyperparameters['dropout_values'][l]))
+        }
+    }
+    model.add(Dense(hyperparameters['forward_samples']))
+    if print_summary {
+        print(model.summary())
+    }
+    model.compile(loss=hyperparameters['loss'], optimizer=hyperparameters['optimizer'],metrics=hyperparameters['model_metrics'])
+    early_stopping=EarlyStopping(monitor='val_loss', mode='min', patience=hyperparameters['patience_epochs'], verbose=1)
+    checkpoint = ModelCheckpoint(MODELS_PATH+hyperparameters['base_name']+'_'+stock_name+'_checkpoint.h5', monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+    callbacks=[early_stopping,checkpoint]
+    return model, callbacks
+}
+
+def fixIfStatefulModel(hyperparameters,model,stock_name){
+    new_model=model
+    if hyperparameters['stateful']{ # workaround because model.predict was not working for trained stateful models
+        hyperparameters['stateful']=False
+        new_model,_=modelBuilder(hyperparameters,stock_name,print_summary=False)
+        new_model.set_weights(model.get_weights()) 
+    }
+    return new_model
+}
+
+def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True){
+    hyperparameters=modeler(id=model_id)   
+    
+    X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
+        dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',
+            normalize=hyperparameters['normalize'],plot_dataset=plot_graphs,train_percent=hyperparameters['train_percent'],val_percent=hyperparameters['val_percent'])
+            
+    model_path=MODELS_PATH+hyperparameters['base_name']+'_'+stock_name
+    model_model_path=model_path+'.h5'
+    model_hyperparam_path=model_path+'_hyperparams.json'
+    model_metrics_path=model_path+'_metrics.json'
+    model_scaler_path=model_path+'_scaler.bin'
+    model_history_path=model_path+'_history.json'
+    createFolderIfNotExists(MODELS_PATH)
+
+    if load_instead_of_training{
+        model = load_model(model_model_path)
+        with open(model_hyperparam_path, 'r') as fp {
+            hyperparameters=json.load(fp)
+        }
+        scaler=loadObj(model_scaler_path)
+        history=loadHist(model_history_path)
+    }else{
+        model,callbacks=modelBuilder(hyperparameters,stock_name)  
+        history=model.fit(X_train,Y_train,epochs=hyperparameters['max_epochs'],validation_data=(X_val,Y_val),batch_size=hyperparameters['batch_size'],callbacks=callbacks,shuffle=True,verbose=2)
+        history=parseHist(history)
+        model=fixIfStatefulModel(hyperparameters,model,stock_name)
+        model.save(model_model_path) 
+        print('Model saved at {};'.format(model_model_path))
+        with open(model_hyperparam_path, 'w') as fp{
+            json.dump(hyperparameters, fp)
+        }
+        print('Model Hyperparameters saved at {};'.format(model_hyperparam_path))   
+        saveObj(scaler,model_scaler_path)  
+        print('Model Scaler saved at {};'.format(model_scaler_path))   
+        saveHist(history,model_history_path)  
+        print('Model History saved at {};'.format(model_history_path)) 
+    }
+
+    
+    
+    Y_test_predicted = model.predict(X_test)
+    Y_train_predicted = model.predict(X_train)
+
+    if hyperparameters['normalize'] {
+        Y_test_predicted=scaler.inverse_transform(Y_test_predicted)
+        Y_train_predicted=scaler.inverse_transform(Y_train_full)
+        Y_train_full=scaler.inverse_transform(Y_train_full)
+        Y_test=scaler.inverse_transform(Y_test)
+    }
+
+    Y_test_unwraped=unwrapFoldedArray(Y_test)
+    Y_test_pred_first_val, Y_test_pred_last_val,\
+         Y_test_pred_mean_val, Y_test_pred_fl_mean_val=processPredictedArray(Y_test_predicted)
+    Y_full=unwrapFoldedArray(np.vstack((Y_train_full,Y_test)))
+    Y_train_pred_first_val, Y_train_pred_last_val,\
+         Y_train_pred_mean_val, Y_train_pred_fl_mean_val=processPredictedArray(Y_train_predicted)
+    
+
+    model_metrics=model.evaluate(X_test[:len(Y_test)],Y_test)
+    aux={}
+    for i in range(len(model_metrics)){
+        aux[model.metrics_names[i]] = model_metrics[i]
+    }
+    model_metrics=aux
+    swing_return,buy_hold_return,class_metrics=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
+    metrics={'Strategy Metrics':{'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return},'Model Metrics':model_metrics,'Class Metrics':class_metrics}
+    with open(model_metrics_path, 'w') as fp{
+        json.dump(metrics, fp)
+    }
+    print('Model Metrics saved at {};'.format(model_metrics_path))
+
+    printDict(model_metrics,'Model metrics')
+    print('Strategy metrics:')
+    print('\tDaily Swing Trade Return: {}'.format(swing_return))
+    print('\tBuy & Hold Return: {}'.format(buy_hold_return))
+    printDict(class_metrics,'Class metrics')
+
+    if plot_graphs{
+        plt.plot(history['loss'], label='loss')
+        plt.plot(history['val_loss'], label='val_loss')
+        plt.legend(loc='best')
+        plt.show() 
+
+        input_size=hyperparameters['backwards_samples']
+        output_size=hyperparameters['forward_samples']
+        plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
+        plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
+        plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
+        plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
+        plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
+        plt.legend(loc='best')
+        plt.show() 
+
+        full_date_index=train_date_index[1:-input_size]+test_date_index
+        plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
+        plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
+        plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
+        plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
+        plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
+        plt.legend(loc='best')
+        plt.show() 
+    }
+}
+
+def downloadAllReferenceDatasets(){
+    limit_date_2020='21/10/2020'
+
+    QP1_3_6_start_date=sTimestampToString(0)
+    QP1_3_6_end_date=limit_date_2020
+    QP1_3_6_stocks=['AAPL','AZUL','BTC-USD','GE','PBR','TSLA','VALE','MSFT','GOGL','AMZN','IBM','T','FB','YOJ.SG','KO']
+    for stock in QP1_3_6_stocks{
+        _,month,year=extractFromStrDate(QP1_3_6_end_date)
+        filename=DATASET_PATH+'{}_I1d_F0_T{}-{}.csv'.format(stock,year,month)
+        getStockHistoryOneDay(stock,filename,start_date=QP1_3_6_start_date,end_date=QP1_3_6_end_date)
+    }
+
+    QP4_start_dates=['01/01/2010','01/01/2011','01/01/2012','01/01/2013','01/01/2014','01/01/2015','01/01/2016','01/01/2017','01/01/2018','01/01/2019','01/01/2020']
+    QP4_end_dates=  ['31/12/2010','31/12/2011','31/12/2012','31/12/2013','31/12/2014','31/12/2015','31/12/2016','31/12/2017','31/12/2018','31/12/2019',limit_date_2020]
+    QP4_stocks=['PBR','TSLA','BTC-USD','VALE']
+    for stock in QP4_stocks{
+        for i in range(len(QP4_start_dates)){
+            filename=DATASET_PATH+'{}_I1h_R1y_S{}.csv'.format(stock,extractFromStrDate(QP4_start_dates[i])[2])
+            getStockOnlineHistoryOneHour(stock,filename,start_timestamp=stringToSTimestamp(QP4_start_dates[i]),end_timestamp=stringToSTimestamp(QP4_end_dates[i]))
+        }
+    }
+}
+
+def trainAllProposedTestModels(dataset_paths,start_at=0){
+    last_test_model_id=None
+    test_id=1
+    while last_test_model_id is None{
+        if modeler(test_id) is None{
+            last_test_model_id=test_id
+        }
+        test_id+=1
+    }
+    for i in range(start_at+1,last_test_model_id+1){
+        loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=False,plot_graphs=False)
+    }
+}
+
+loadTrainAndSaveModel(model_id=2,dataset_paths='datasets/GE_I1d_F0_T2020-10.csv',load_instead_of_training=False,plot_graphs=False)
+# downloadAllReferenceDatasets()
+# trainAllProposedTestModels('datasets/GE_I1d_F0_T2020-10.csv')
+
+# def main(argv):
+#     HELP_STR=r'Pytho{N}.py [-v <value>]'
+#     python_ver=3
+#     args=[]
+#     try:
+#         opts, args = getopt.getopt(argv,"hv:",["version="])
+#     except getopt.GetoptError:
+#         print (HELP_STR)
+#         sys.exit(2)
+#     for opt, arg in opts:
+#         if opt == '-h':
+#             print (HELP_STR)
+#             sys.exit()
+#         elif opt in ("-v", "--version"):
+#             python_ver=arg
+#     sourcename=""
+#     for arg in args:
+#         if re.match(r'^.*\.py$', arg):
+#             sourcename=arg
+#             args.remove(arg)
+#             break
+#     PythoN(python_ver,sourcename,' '.join(args))
+
+
+# if __name__ == "__main__":
+#     main(sys.argv[1:])
