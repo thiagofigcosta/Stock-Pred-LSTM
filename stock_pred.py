@@ -142,9 +142,11 @@ def getStockOnlineHistoryOneHour(stock_name,filename,data_range='730d',start_tim
 
 def filenameFromPath(path,get_extension=False){
     if get_extension {
-        return re.search(r'.*\/(.*\..+)', path).group(1)
+        re_result=re.search(r'.*\/(.*\..+)', path)
+        return re_result.group(1) if re_result is not None else path
     }else{
-        return re.search(r'.*\/(.*)\..+', path).group(1)
+        re_result=re.search(r'.*\/(.*)\..+', path)
+        return re_result.group(1) if re_result is not None else path
     }
 } 
 
@@ -231,48 +233,100 @@ def unwrapFoldedArray(array,use_last=False,use_mean=False,magic_offset=0){
     return unwraped    
 }
 
+def extractIfList(x,last_instead_of_all_but_last=False){
+    if isinstance(x, (list,pd.core.series.Series,np.ndarray)){
+        if last_instead_of_all_but_last{
+            return x[-1]
+        }else{
+            return x[:-1]
+        }
+    }else{
+        return x
+    }
+}
+
 # input_size is the amount of data points taken into account to predict output_size amount of data points
-def loadDataset(paths,input_size,output_size,train_fields=['Close'],result_field='Close',index_field=None,normalize=False,plot_dataset=False,train_percent=1,val_percent=0){
+def loadDataset(paths,input_size,output_size,company_index_array=[0],train_fields=['Close'],result_field='Close',index_field=None,normalize=False,plot_dataset=False,train_percent=1,val_percent=0){
     if val_percent>1 or train_percent>1 or val_percent<0 or train_percent<0{
         raise Exception('Train + validation percent must be smaller than 1 and bigger than 0')
     }
-
     if not isinstance(paths, list){
         paths=[paths]
     }
-    frames=[]
-    dataset_name=[]
-    for path in paths{
-        frames.append(pd.read_csv(path))
-        dataset_name.append(filenameFromPath(path))
-    }
-    dataset_name='_'.join(dataset_name)
-    full_data=pd.concat(frames)
 
-    date_index_array=None
-    if index_field is not None{
-        date_index_array = pd.to_datetime(full_data[index_field])
-        full_data[index_field] = date_index_array
-        full_data.set_index(index_field, inplace=True)
+    full_data=[]
+    amount_of_companies=len(set(company_index_array))
+    if amount_of_companies>1{
+        if len(company_index_array)!=len(paths){
+            raise Exception('Company index array ({}) must have the same lenght than Paths array ({}) '.format(len(company_index_arary),len(paths)))
+        }
+        dataset_name=[]
+        frames=[]
+        last_company=None
+        for i in range(len(company_index_array)){
+            company=company_index_array[i]
+            path=paths[i]
+            if last_company != company{
+                last_company=company
+                dataset_name.append(filenameFromPath(path))
+                if len(frames)>0{
+                    full_data.append(pd.concat(frames))
+                    frames=[]
+                }
+            }
+            frames.append(pd.read_csv(path))
+        }
+        dataset_name='_'.join(dataset_name)
+        if len(frames)>0{
+            full_data.append(pd.concat(frames))
+            frames=[]
+        }
+    }else{
+        dataset_name=filenameFromPath(paths[0])
+        frames=[]
+        for path in paths{
+            frames.append(pd.read_csv(path))
+        }
+        full_data.append(pd.concat(frames))
     }
 
     fields=train_fields
-
     if result_field not in fields{
         fields.append(result_field)
     }
     fields.remove(result_field)
     fields.append(result_field) # ensure that the last one is the result field
+    
+    for i in range(len(full_data)){
+        date_index_array=None
+        if index_field is not None{
+            date_index_array = pd.to_datetime(full_data[i][index_field])
+            full_data[i][index_field] = date_index_array
+            full_data[i].set_index(index_field, inplace=True)
+        }
 
-    full_data=full_data[fields]
-
-    if plot_dataset{ 
-        plt.plot(full_data, label='Stock Values of {}'.format(dataset_name))
-        plt.legend(loc='best')
-        plt.show() 
+        full_data[i]=full_data[i][fields]
+        if plot_dataset{ 
+            if amount_of_companies==1 {
+                label='Stock Values of {}'.format(dataset_name)
+            }else{
+                label='Stock Values Company {} from {}'.format(i+1,dataset_name)
+            }
+            plt.plot(full_data[i], label=label)
+            plt.legend(loc='best')
+            plt.show() 
+        }
     }
 
-    full_data=full_data.values.reshape(full_data.shape[0],len(fields))
+    if amount_of_companies==1 {
+        full_data=full_data[0].values.reshape(full_data[0].shape[0],len(fields))
+    }else{
+        for i in range(len(full_data)){
+            full_data[i]=full_data[i].values.reshape(full_data[i].shape[0],len(fields))
+        }
+        tuple_of_companies=tuple(full_data)
+        full_data = np.concatenate((tuple_of_companies), axis=1)
+    }
 
     scaler = MinMaxScaler(feature_range=(0, 1))
     if normalize{
@@ -290,13 +344,24 @@ def loadDataset(paths,input_size,output_size,train_fields=['Close'],result_field
 
     X_full_data=[]
     Y_full_data=[]
-    for i in range(input_size,data_size-output_size+1){
-        X_full_data.append(np.array([x[:len(train_fields)] for x in full_data[i-input_size:i]]))
-        Y_full_data.append(np.array([x[-1] for x in full_data[i:i+output_size]]))
-    }
-    # going beyond labels
-    for i in range(data_size-output_size+1,data_size+1){
-        X_full_data.append(np.array([x[:len(train_fields)] for x in full_data[i-input_size:i]]))
+    if amount_of_companies==1 {
+        for i in range(input_size,data_size-output_size+1){
+            X_full_data.append(np.array([x[:len(train_fields)] for x in full_data[i-input_size:i]]))
+            Y_full_data.append(np.array([x[-1] for x in full_data[i:i+output_size]]))
+        }
+        # going beyond labels
+        for i in range(data_size-output_size+1,data_size+1){
+            X_full_data.append(np.array([x[:len(train_fields)] for x in full_data[i-input_size:i]]))
+        }
+    }else{
+         for i in range(input_size,data_size-output_size+1){
+            X_full_data.append(np.array([extractIfList(x) for x in full_data[i-input_size:i]]))
+            Y_full_data.append(np.array([extractIfList(x,last_instead_of_all_but_last=True) for x in full_data[i:i+output_size]]))
+        }
+        # going beyond labels
+        for i in range(data_size-output_size+1,data_size+1){
+            X_full_data.append(np.array([extractIfList(x) for x in full_data[i-input_size:i]]))
+        }
     }
     X_full_data=np.array(X_full_data)
     Y_full_data=np.array(Y_full_data)
@@ -322,6 +387,9 @@ def loadDataset(paths,input_size,output_size,train_fields=['Close'],result_field
 
     if val_percent>0{
         X_train,X_val,Y_train,Y_val = train_test_split(X_train_full, Y_train_full, test_size=val_percent)
+    }else{
+        X_train=X_train_full
+        Y_train=Y_train_full
     }
 
     return X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,X_train_full,Y_train_full,train_date_index,test_date_index,dataset_name
