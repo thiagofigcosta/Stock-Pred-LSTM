@@ -1210,5 +1210,8 @@ def main(argv){
 }
 
 if __name__ == "__main__"{
+    delta=-time.time()
     main(sys.argv[1:])
+    delta+=time.time()
+    print("\n\nTotal delta time is {} s".format(delta))
 }
