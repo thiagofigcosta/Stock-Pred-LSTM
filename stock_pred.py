@@ -11,6 +11,7 @@ import pandas as pd
 import numpy as np
 import re
 import math
+import shutil
 import sys, getopt
 from datetime import datetime
 from sklearn.preprocessing import MinMaxScaler
@@ -770,6 +771,37 @@ def downloadAllReferenceDatasets(){
     }
 }
 
+def restoreBestModelCheckpoint(){
+    models={}
+    for file_str in os.listdir(MODELS_PATH){
+        re_result=re.search(r'model_id-([0-9]*)_.*\.h5', file_str)
+        if re_result{
+            model_id=re_result.group(1)
+            if model_id not in models{
+                models[model_id]=[file_str]
+            }else{
+                models[model_id].append(file_str)
+            }
+        }
+    }
+    for _,files in models.items(){
+        checkpoint_filename=None
+        model_filename=None
+        for file in files{
+            if re.search(r'model_id-[0-9]_.*_checkpoint\.h5', file){
+                checkpoint_filename=file
+            }elif re.search(r'model_id-[0-9].*(?<![_checkpoint|_last_patience])\.h5', file){
+                model_filename=file
+            }               
+        }
+        if checkpoint_filename is not None and model_filename is not None{
+            print('Restoring checkpoint {}'.format(checkpoint_filename))
+            shutil.move(MODELS_PATH+model_filename,MODELS_PATH+model_filename.split('.')[0]+'_last_patience.h5')
+            shutil.copy(MODELS_PATH+checkpoint_filename,MODELS_PATH+model_filename)
+        }
+    }
+}
+
 def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
     last_test_model_id=None
     test_id=1
@@ -786,8 +818,8 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
 }
 
 def main(argv){
-    HELP_STR=r'Pytho{N}.py stock_pred.py [-d|--download-datasets] [--test-all-test-trained-models [--start-at <value>] --dataset-paths <values>] [--train-all-test-models [--start-at <value>] --dataset-paths <values>] [--download-stock [--use-hour-interval] --stock-name --start-date <value> --end-date <value>]'
-    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models"]
+    HELP_STR=r'Pytho{N}.py stock_pred.py [-d|--download-datasets] [--test-all-test-trained-models [--start-at <value>] --dataset-paths <values>] [--restore-best-checkpoints] [--train-all-test-models [--start-at <value>] --dataset-paths <values>] [--download-stock [--use-hour-interval] --stock-name <value> --start-date <value> --end-date <value>]'
+    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models","restore-best-checkpoints"]
     modules_to_run=[]
     args=[]
     
@@ -799,7 +831,7 @@ def main(argv){
     dataset_paths=[]
 
     try{
-        opts, args = getopt.getopt(argv,"hd",["use-hour-interval","stock-name","start-date=","end-date=","start-at=","dataset-paths="]+modules)
+        opts, args = getopt.getopt(argv,"hd",["use-hour-interval","stock-name=","start-date=","end-date=","start-at=","dataset-paths="]+modules)
     }except getopt.GetoptError{
         print (HELP_STR)
         sys.exit(2)
@@ -842,6 +874,8 @@ def main(argv){
             trainAllProposedTestModels(dataset_paths,start_at=start_at)
         }elif module == "test-all-test-trained-models"{ 
             trainAllProposedTestModels(dataset_paths,start_at=start_at,plot_and_load=True)
+        }elif module == "restore-best-checkpoints"{
+            restoreBestModelCheckpoint()
         }elif module == "download-stock"{
             start_day,start_month,start_year=extractFromStrDate(start_date)
             end_day,end_month,end_year=extractFromStrDate(end_date)
