@@ -886,11 +886,11 @@ def fixIfStatefulModel(hyperparameters,model,stock_name){
     return new_model
 }
 
-def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True){
+def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True,train_fields=['Close'],company_index_array=[0]){
     hyperparameters=modeler(id=model_id)   
     
     X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
-        dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',
+        dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',train_fields=train_fields,company_index_array=company_index_array,
             normalize=hyperparameters['normalize'],plot_dataset=plot_graphs,train_percent=hyperparameters['train_percent'],val_percent=hyperparameters['val_percent'])
             
     model_path=MODELS_PATH+hyperparameters['base_name']+'_'+stock_name
@@ -1066,9 +1066,62 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
     }
 }
 
+
+def QP1(plot_and_load=True){
+    dataset_paths=['datasets/GE_I1d_F0_T2020-10.csv','datasets/AAPL_I1d_F0_T2020-10.csv','datasets/AZUL_I1d_F0_T2020-10.csv','datasets/BTC-USD_I1d_F0_T2020-10.csv','datasets/PBR_I1d_F0_T2020-10.csv','datasets/TSLA_I1d_F0_T2020-10.csv','datasets/VALE_I1d_F0_T2020-10.csv']
+    for dataset in dataset_paths{
+        trainAllProposedTestModels(dataset,plot_and_load)
+    }
+}
+
+def QP2(plot_and_load=True){
+    dataset_paths=['datasets/GE_I1d_F0_T2020-10.csv','datasets/AAPL_I1d_F0_T2020-10.csv','datasets/AZUL_I1d_F0_T2020-10.csv','datasets/BTC-USD_I1d_F0_T2020-10.csv','datasets/PBR_I1d_F0_T2020-10.csv','datasets/TSLA_I1d_F0_T2020-10.csv','datasets/VALE_I1d_F0_T2020-10.csv']
+    for dataset in dataset_paths{
+        loadTrainAndSaveModel(model_id=0,train_fields=['Open','High','Low','Close','Adj Close','Volume'],dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    }
+}
+
+def QP3(plot_and_load=True){
+    dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv','datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
+    company_index_array=[0,1,2,3,4,5,6,7]
+    loadTrainAndSaveModel(model_id=0,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    for dataset in dataset_paths{
+        loadTrainAndSaveModel(model_id=0,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    }
+}
+
+def QP4(plot_and_load=True){
+    dataset_paths=[['datasets/PBR_I1h_R1y_S2010.csv','datasets/PBR_I1h_R1y_S2011.csv',
+    'datasets/PBR_I1h_R1y_S2012.csv','datasets/PBR_I1h_R1y_S2013.csv','datasets/PBR_I1h_R1y_S2014.csv',
+    'datasets/PBR_I1h_R1y_S2015.csv','datasets/PBR_I1h_R1y_S2016.csv','datasets/PBR_I1h_R1y_S2017.csv',
+    'datasets/PBR_I1h_R1y_S2018.csv','datasets/PBR_I1h_R1y_S2019.csv','datasets/PBR_I1h_R1y_S2020.csv'],
+    ['datasets/TSLA_I1h_R1y_S2010.csv','datasets/TSLA_I1h_R1y_S2011.csv','datasets/TSLA_I1h_R1y_S2012.csv',
+    'datasets/TSLA_I1h_R1y_S2013.csv','datasets/TSLA_I1h_R1y_S2014.csv','datasets/TSLA_I1h_R1y_S2015.csv',
+    'datasets/TSLA_I1h_R1y_S2016.csv','datasets/TSLA_I1h_R1y_S2017.csv','datasets/TSLA_I1h_R1y_S2018.csv',
+    'datasets/TSLA_I1h_R1y_S2019.csv','datasets/TSLA_I1h_R1y_S2020.csv'],
+    ['datasets/BTC-USD_I1h_R1y_S2010.csv','datasets/BTC-USD_I1h_R1y_S2011.csv','datasets/BTC-USD_I1h_R1y_S2012.csv',
+    'datasets/BTC-USD_I1h_R1y_S2013.csv','datasets/BTC-USD_I1h_R1y_S2014.csv','datasets/BTC-USD_I1h_R1y_S2015.csv',
+    'datasets/BTC-USD_I1h_R1y_S2016.csv','datasets/BTC-USD_I1h_R1y_S2017.csv','datasets/BTC-USD_I1h_R1y_S2018.csv',
+    'datasets/BTC-USD_I1h_R1y_S2019.csv','datasets/BTC-USD_I1h_R1y_S2020.csv'],
+    ['datasets/VALE_I1h_R1y_S2010.csv','datasets/VALE_I1h_R1y_S2011.csv','datasets/VALE_I1h_R1y_S2012.csv',
+    'datasets/VALE_I1h_R1y_S2013.csv','datasets/VALE_I1h_R1y_S2014.csv','datasets/VALE_I1h_R1y_S2015.csv',
+    'datasets/VALE_I1h_R1y_S2016.csv','datasets/VALE_I1h_R1y_S2017.csv','datasets/VALE_I1h_R1y_S2018.csv',
+    'datasets/VALE_I1h_R1y_S2019.csv','datasets/VALE_I1h_R1y_S2020.csv']] 
+    for dataset in dataset_paths{
+        loadTrainAndSaveModel(model_id=0,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    }
+}
+
+def QP6(plot_and_load=True){
+    dataset_paths=['datasets/IBM_I1d_F0_T2020-10.csv','KO_I1d_F0_T2020-10.csv']
+    for dataset in dataset_paths{
+        loadTrainAndSaveModel(model_id=0,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    }
+}
+
 def main(argv){
-    HELP_STR=r'Pytho{N}.py stock_pred.py [-d|--download-datasets] [--test-all-test-trained-models [--start-at <value>] --dataset-paths <values>] [--restore-best-checkpoints] [--train-all-test-models [--start-at <value>] --dataset-paths <values>] [--download-stock [--use-hour-interval] --stock-name <value> --start-date <value> --end-date <value>]'
-    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models","restore-best-checkpoints"]
+    HELP_STR=r'Pytho{N}.py stock_pred.py [-d|--download-datasets] [[--qp1 | --qp2 | --qp3 | --qp4 | --qp6] [--train_without_plot]] [--test-all-test-trained-models [--start-at <value>] --dataset-paths <values>] [--restore-best-checkpoints] [--train-all-test-models [--start-at <value>] --dataset-paths <values>] [--download-stock [--use-hour-interval] --stock-name <value> --start-date <value> --end-date <value>]'
+    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models","restore-best-checkpoints","qp1","qp2","qp3","qp4","qp5"]
     modules_to_run=[]
     args=[]
     
@@ -1077,10 +1130,11 @@ def main(argv){
     start_date=''
     end_date=''
     start_at=0
+    plot_and_load=True
     dataset_paths=[]
 
     try{
-        opts, args = getopt.getopt(argv,"hd",["use-hour-interval","stock-name=","start-date=","end-date=","start-at=","dataset-paths="]+modules)
+        opts, args = getopt.getopt(argv,"hd",["use-hour-interval","stock-name=","start-date=","end-date=","start-at=","dataset-paths=","train_without_plot"]+modules)
     }except getopt.GetoptError{
         print (HELP_STR)
         sys.exit(2)
@@ -1111,6 +1165,8 @@ def main(argv){
             start_at=int(arg)
         }elif opt == "--dataset-paths"{
             dataset_paths=arg.split(',')
+        }elif opt == "--train_without_plot"{
+            plot_and_load=False
         }else{
             modules_to_run.append(opt)
         }
@@ -1125,6 +1181,16 @@ def main(argv){
             trainAllProposedTestModels(dataset_paths,start_at=start_at,plot_and_load=True)
         }elif module == "restore-best-checkpoints"{
             restoreBestModelCheckpoint()
+        }elif module == "qp1"{
+            QP1(plot_and_load=plot_and_load)
+        }elif module == "qp2"{
+            QP2(plot_and_load=plot_and_load)
+        }elif module == "qp3"{
+            QP3(plot_and_load=plot_and_load)
+        }elif module == "qp4"{
+            QP4(plot_and_load=plot_and_load)
+        }elif module == "qp6"{
+            QP6(plot_and_load=plot_and_load)
         }elif module == "download-stock"{
             start_day,start_month,start_year=extractFromStrDate(start_date)
             end_day,end_month,end_year=extractFromStrDate(end_date)
