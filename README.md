@@ -24,3 +24,12 @@ python3 Pytho\{N\}.py stock_pred.py --test-all-test-trained-models --dataset-pat
 ```
 python3 Pytho\{N\}.py stock_pred.py --download-stock --use-hour-interval --stock-name GE --start-date 23/02/2019 --end-date 15/07/2019
 ```
+
+>- To run research questions, use `--train_without_plot` for training, and then run without it to see results
+```
+python3 Pytho\{N\}.py stock_pred.py -qp1
+python3 Pytho\{N\}.py stock_pred.py -qp2
+python3 Pytho\{N\}.py stock_pred.py -qp3
+python3 Pytho\{N\}.py stock_pred.py -qp4
+python3 Pytho\{N\}.py stock_pred.py -qp6
+```
