@@ -9,6 +9,7 @@ import codecs
 import json
 import pandas as pd
 import numpy as np
+import random as rd
 import re
 import math
 import shutil
@@ -458,10 +459,10 @@ def analyzeStrategiesAndClassMetrics(stock_real_array,stock_pred_array){
     return swing_return, buy_and_hold_return, class_metrics
 }
 
-def autoBuy13(total_money_to_invest,stock_real_array,stock_pred_array,saving_percentage=0){
+def autoBuy13(total_money_to_invest,stock_real_array,stock_pred_array,saving_percentage=0.13){
     real_stock_delta=getStockReturn(stock_real_array)
     pred_stock_delta=getStockReturn(stock_pred_array)
-
+    e=math.e
     corret_predicts_in_a_row=0
     savings_money=0
     current_money=total_money_to_invest
@@ -471,22 +472,40 @@ def autoBuy13(total_money_to_invest,stock_real_array,stock_pred_array,saving_per
             stock_predicted_sell_price=stock_pred_array[i]
             predicted_valuing=stock_predicted_sell_price/stock_buy_price
             max_stocks_possible=math.floor(current_money/stock_buy_price)
-            stocks_to_buy=1 # TODO algo to select this based on randomness, corret_predicts_in_a_row and predicted_valuing # define max limit of bought stocks per iter
-            investiment_cost=stocks_to_buy*stock_buy_price
-            current_money-=investiment_cost
-            stock_sell_price=stock_real_array[i]
-            brute_return=stocks_to_buy*stock_sell_price
-            if brute_return-investiment_cost<0{
+            if (max_stocks_possible<0){
+                max_stocks_possible=0
+            }
+            if corret_predicts_in_a_row ==0{
+                lucky_randomness=rd.uniform(.02,.07)
+            }elif corret_predicts_in_a_row ==1{
+                lucky_randomness=rd.uniform(.04,.09)
+            }elif corret_predicts_in_a_row >=2{
+                extra=(corret_predicts_in_a_row/7)
+                if extra>1{
+                    extra=1
+                }
+                lucky_randomness=rd.uniform(.07,.13)+.13*extra
+            }
+            confidence=(-1+(e**(predicted_valuing**.6/1.13))**0.5)/5
+            multiplier=(lucky_randomness+confidence)/2
+            if multiplier > 0.23{
+                multiplier=0.23
+            }
+            stocks_to_buy=math.ceil(max_stocks_possible*multiplier)
+            if stocks_to_buy<2{
+                stocks_to_buy=2
+            }
+            if real_stock_delta[i]<0{
                 corret_predicts_in_a_row=0
-                current_money+=stocks_to_buy*stock_sell_price
+                current_money+=real_stock_delta[i]*stocks_to_buy
             }else{
                 corret_predicts_in_a_row+=1
-                current_money+=stocks_to_buy*stock_sell_price*(1-saving_percentage)
-                savings_money+=stocks_to_buy*stock_sell_price*saving_percentage
+                current_money+=real_stock_delta[i]*stocks_to_buy*(1-saving_percentage)
+                savings_money+=real_stock_delta[i]*stocks_to_buy*saving_percentage
             }
         }
     }
-    return current_money+savings_money
+    return current_money+savings_money-total_money_to_invest
 }
 
 def calculateLayerOutputSize(layer_input_size,network_output_size,train_data_size=0,a=2,second_formula=False){
@@ -887,7 +906,8 @@ def fixIfStatefulModel(hyperparameters,model,stock_name){
 }
 
 def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True,train_fields=['Close'],company_index_array=[0]){
-    hyperparameters=modeler(id=model_id)   
+    hyperparameters=modeler(id=model_id) 
+    investiment=22000  
     
     X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
         dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',train_fields=train_fields,company_index_array=company_index_array,
@@ -950,17 +970,17 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
     }
     model_metrics=aux
     swing_return,buy_hold_return,class_metrics=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
-    metrics={'Strategy Metrics':{'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return},'Model Metrics':model_metrics,'Class Metrics':class_metrics}
+    viniccius13_return=autoBuy13(investiment,Y_test_unwraped,Y_test_pred_fl_mean_val)
+    strategy_metrics={'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return,'Auto13(${}) Return'.format(investiment):viniccius13_return}
+    metrics={'Strategy Metrics':strategy_metrics,'Model Metrics':model_metrics,'Class Metrics':class_metrics}
     with open(model_metrics_path, 'w') as fp{
         json.dump(metrics, fp)
     }
     print('Model Metrics saved at {};'.format(model_metrics_path))
 
     printDict(model_metrics,'Model metrics')
-    print('Strategy metrics:')
-    print('\tDaily Swing Trade Return: {}'.format(swing_return))
-    print('\tBuy & Hold Return: {}'.format(buy_hold_return))
     printDict(class_metrics,'Class metrics')
+    printDict(strategy_metrics,'Strategy metrics')
 
     if plot_graphs{
         plt.plot(history['loss'], label='loss')
@@ -1210,6 +1230,8 @@ def main(argv){
 }
 
 if __name__ == "__main__"{
+    loadTrainAndSaveModel(model_id=2,dataset_paths='datasets/GE_I1d_F0_T2020-10.csv',load_instead_of_training=True,plot_graphs=False)
+    exit()
     delta=-time.time()
     main(sys.argv[1:])
     delta+=time.time()
