@@ -1230,8 +1230,6 @@ def main(argv){
 }
 
 if __name__ == "__main__"{
-    loadTrainAndSaveModel(model_id=2,dataset_paths='datasets/GE_I1d_F0_T2020-10.csv',load_instead_of_training=True,plot_graphs=False)
-    exit()
     delta=-time.time()
     main(sys.argv[1:])
     delta+=time.time()
