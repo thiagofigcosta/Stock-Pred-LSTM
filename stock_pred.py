@@ -1048,17 +1048,21 @@ def restoreBestModelCheckpoint(){
     for _,files in models.items(){
         checkpoint_filename=None
         model_filename=None
+        metrics_filename=None
         for file in files{
             if re.search(r'model_id-[0-9]_.*_checkpoint\.h5', file){
                 checkpoint_filename=file
             }elif re.search(r'model_id-[0-9].*(?<![_checkpoint|_last_patience])\.h5', file){
                 model_filename=file
-            }               
+            }elif re.search(r'model_id-[0-9]_.*(?<!_last_patience)_metrics\.json', file){
+                metrics_filename=file
+            }      
         }
         if checkpoint_filename is not None and model_filename is not None{
             print('Restoring checkpoint {}'.format(checkpoint_filename))
             shutil.move(MODELS_PATH+model_filename,MODELS_PATH+model_filename.split('.')[0]+'_last_patience.h5')
             shutil.copy(MODELS_PATH+checkpoint_filename,MODELS_PATH+model_filename)
+            shutil.move(MODELS_PATH+metrics_filename,MODELS_PATH+metrics_filename.split('_metrics')[0]+'_last_patience_metrics.json')
         }
     }
 }
