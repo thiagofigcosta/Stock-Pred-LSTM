@@ -554,9 +554,9 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
         hyperparameters['batch_size']=1
         hyperparameters['stateful']=True
         hyperparameters['dropout_values']=[.2,.2,.2]
-        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
-        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
-        hyperparameters['lstm_l3_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=False)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=False)
+        hyperparameters['lstm_l3_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=False)
         hyperparameters['normalize']=True
         hyperparameters['optimizer']='adam'
         hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
@@ -575,9 +575,250 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
         hyperparameters['batch_size']=5
         hyperparameters['stateful']=False
         hyperparameters['dropout_values']=[.2,.2,.2]
-        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
-        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
-        hyperparameters['lstm_l3_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a)
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=False)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=False)
+        hyperparameters['lstm_l3_size']=calculateLayerOutputSize(hyperparameters['lstm_l2_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=False)
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==5 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=30
+        hyperparameters['forward_samples']=5
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=15
+        hyperparameters['batch_size']=5
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.14,0]
+        hyperparameters['lstm_l1_size']=40
+        hyperparameters['lstm_l2_size']=20
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==6 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=10
+        hyperparameters['forward_samples']=3
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=1
+        hyperparameters['stateful']=True
+        hyperparameters['dropout_values']=[.6,.1]
+        hyperparameters['lstm_l1_size']=200
+        hyperparameters['lstm_l2_size']=20
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==6 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=10
+        hyperparameters['forward_samples']=3
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=10
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.6,.1]
+        hyperparameters['lstm_l1_size']=200
+        hyperparameters['lstm_l2_size']=20
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==7 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=90
+        hyperparameters['forward_samples']=5
+        hyperparameters['lstm_layers']=3
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=10
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.3,.5,.1]
+        hyperparameters['lstm_l1_size']=80
+        hyperparameters['lstm_l2_size']=150
+        hyperparameters['lstm_l3_size']=20
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==8 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=7
+        hyperparameters['forward_samples']=3
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=15
+        hyperparameters['batch_size']=7
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.4,.2]
+        hyperparameters['lstm_l1_size']=120
+        hyperparameters['lstm_l2_size']=40
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==9 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=7
+        hyperparameters['forward_samples']=3
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=15
+        hyperparameters['batch_size']=1
+        hyperparameters['stateful']=True
+        hyperparameters['dropout_values']=[.4,.2]
+        hyperparameters['lstm_l1_size']=120
+        hyperparameters['lstm_l2_size']=40
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==10 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=15
+        hyperparameters['forward_samples']=5
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=15
+        hyperparameters['batch_size']=7
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.2,.2]
+        hyperparameters['lstm_l1_size']=50
+        hyperparameters['lstm_l2_size']=10
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==11 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=66
+        hyperparameters['forward_samples']=6
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=15
+        hyperparameters['batch_size']=6
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.3,.3]
+        hyperparameters['lstm_l1_size']=66
+        hyperparameters['lstm_l2_size']=33
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.7
+        hyperparameters['val_percent']=.2
+    }elif id==12 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=20
+        hyperparameters['forward_samples']=10
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=6
+        hyperparameters['batch_size']=7
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.6,.3]
+        hyperparameters['lstm_l1_size']=70
+        hyperparameters['lstm_l2_size']=30
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==13 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=33
+        hyperparameters['forward_samples']=15
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=8
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.2,.2]
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=True)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=True)
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==14 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=33
+        hyperparameters['forward_samples']=15
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=10
+        hyperparameters['batch_size']=1
+        hyperparameters['stateful']=True
+        hyperparameters['dropout_values']=[.2,.2]
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=True)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=True)
+        hyperparameters['normalize']=True
+        hyperparameters['optimizer']='adam'
+        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
+        hyperparameters['loss']='mean_squared_error'
+        hyperparameters['train_percent']=.8
+        hyperparameters['val_percent']=.2
+    }elif id==15 {
+        a=2 # from 2 to 8
+        hyperparameters['amount_companies']=1
+        hyperparameters['input_features']=1
+        hyperparameters['backwards_samples']=33
+        hyperparameters['forward_samples']=5
+        hyperparameters['lstm_layers']=2
+        hyperparameters['max_epochs']=200
+        hyperparameters['patience_epochs']=15
+        hyperparameters['batch_size']=2
+        hyperparameters['stateful']=False
+        hyperparameters['dropout_values']=[.2,.2]
+        hyperparameters['lstm_l1_size']=calculateLayerOutputSize(hyperparameters['backwards_samples'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=True)
+        hyperparameters['lstm_l2_size']=calculateLayerOutputSize(hyperparameters['lstm_l1_size'],hyperparameters['forward_samples'],train_data_size=train_size,a=a,second_formula=True)
         hyperparameters['normalize']=True
         hyperparameters['optimizer']='adam'
         hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
@@ -813,7 +1054,15 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
     }
     for i in range(start_at+1,last_test_model_id){
         print("Model {}".format(i))
-        loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        try{
+            loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        }except{
+            print("Model {} - WITH EXCEPTION, KEEP GOING...".format(i))
+            print()
+            print()
+            print()
+            print("Model {} - WITH EXCEPTION, KEEP GOING...".format(i))
+        }
     }
 }
 

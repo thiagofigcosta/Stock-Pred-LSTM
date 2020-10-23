@@ -87,6 +87,7 @@ def pre_compile(content):
             dictionary=True
         if re.match(r'^.*}((?=(?:[^\"\']*\"\'[^\"\']*\"\')*[^\"\']*\Z)|\s*(else|elif))', line): 
             if not dictionary:
+                line=re.sub('} *', '}', line)
                 line=replace_last(line,'}','')
                 needed_tabs-=1
             else:
@@ -100,6 +101,7 @@ def pre_compile(content):
         parsed_lines+=line+'\n'
         if turn_off_dictionary:
             dictionary=False
+    # print(parsed_lines)
     return parsed_lines            
 
 def pre_compile_and_save_all_files(source_path):
