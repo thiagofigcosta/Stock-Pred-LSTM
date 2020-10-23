@@ -1072,7 +1072,7 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
         }
         test_id+=1
     }
-    for i in range(start_at+1,last_test_model_id){
+    for i in range(start_at,last_test_model_id+1){
         print("Model {}".format(i))
         try{
             loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
