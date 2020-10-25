@@ -1041,7 +1041,7 @@ def downloadAllReferenceDatasets(){
 def restoreBestModelCheckpoint(){
     models={}
     for file_str in os.listdir(MODELS_PATH){
-        re_result=re.search(r'model_id-([0-9]*)_.*\.h5', file_str)
+        re_result=re.search(r'model_id-([0-9]*)_.*\.(h5|json)', file_str)
         if re_result{
             model_id=re_result.group(1)
             if model_id not in models{
@@ -1067,8 +1067,10 @@ def restoreBestModelCheckpoint(){
         if checkpoint_filename is not None and model_filename is not None{
             print('Restoring checkpoint {}'.format(checkpoint_filename))
             shutil.move(MODELS_PATH+model_filename,MODELS_PATH+model_filename.split('.')[0]+'_last_patience.h5')
-            shutil.copy(MODELS_PATH+checkpoint_filename,MODELS_PATH+model_filename)
-            shutil.move(MODELS_PATH+metrics_filename,MODELS_PATH+metrics_filename.split('_metrics')[0]+'_last_patience_metrics.json')
+            shutil.move(MODELS_PATH+checkpoint_filename,MODELS_PATH+model_filename)
+            if metrics_filename is not None{
+                shutil.move(MODELS_PATH+metrics_filename,MODELS_PATH+metrics_filename.split('_metrics')[0]+'_last_patience_metrics.json')
+            }
         }
     }
 }
