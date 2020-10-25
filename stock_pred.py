@@ -285,6 +285,9 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
         }
     }else{
         dataset_name=filenameFromPath(paths[0])
+        if len(paths)>1{
+            dataset_name+=str(len(paths))
+        }
         frames=[]
         for path in paths{
             frames.append(pd.read_csv(path))
@@ -915,6 +918,9 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             
     model_path=MODELS_PATH+hyperparameters['base_name']+'_'+stock_name
     model_model_path=model_path+'.h5'
+    if len(train_fields)>1{
+        model_model_path+='_IF{}'.format(len(train_fields))
+    }
     model_hyperparam_path=model_path+'_hyperparams.json'
     model_metrics_path=model_path+'_metrics.json'
     model_scaler_path=model_path+'_scaler.bin'
