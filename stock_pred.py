@@ -1085,7 +1085,7 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
          test_id+=1
         }
     }
-    for i in range(start_at,last_test_model_id){
+    for i in range(start_at+1,last_test_model_id){
         print("Model {}".format(i))
         try{
             loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
@@ -1103,7 +1103,7 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
 def QP1(plot_and_load=True){
     dataset_paths=['datasets/GE_I1d_F0_T2020-10.csv','datasets/AAPL_I1d_F0_T2020-10.csv','datasets/AZUL_I1d_F0_T2020-10.csv','datasets/BTC-USD_I1d_F0_T2020-10.csv','datasets/PBR_I1d_F0_T2020-10.csv','datasets/TSLA_I1d_F0_T2020-10.csv','datasets/VALE_I1d_F0_T2020-10.csv']
     for dataset in dataset_paths{
-        trainAllProposedTestModels(dataset,plot_and_load)
+        trainAllProposedTestModels(dataset,plot_and_load=plot_and_load)
     }
 }
 

@@ -27,9 +27,9 @@ python3 Pytho\{N\}.py stock_pred.py --download-stock --use-hour-interval --stock
 
 >- To run research questions, use `--train_without_plot` for training, and then run without it to see results
 ```
-python3 Pytho\{N\}.py stock_pred.py -qp1
-python3 Pytho\{N\}.py stock_pred.py -qp2
-python3 Pytho\{N\}.py stock_pred.py -qp3
-python3 Pytho\{N\}.py stock_pred.py -qp4
-python3 Pytho\{N\}.py stock_pred.py -qp6
+python3 Pytho\{N\}.py stock_pred.py --qp1
+python3 Pytho\{N\}.py stock_pred.py --qp2
+python3 Pytho\{N\}.py stock_pred.py --qp3
+python3 Pytho\{N\}.py stock_pred.py --qp4
+python3 Pytho\{N\}.py stock_pred.py --qp6
 ```
