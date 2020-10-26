@@ -929,6 +929,7 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
 
     if load_instead_of_training{
         model = load_model(model_model_path)
+        model = fixIfStatefulModel(hyperparameters,model,stock_name)
         with open(model_hyperparam_path, 'r') as fp {
             hyperparameters=json.load(fp)
         }
