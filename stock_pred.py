@@ -837,9 +837,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         return None
     }
 
-    if input_features>1{
-        model_base_name+='_IFs{}'.format(input_features)
-    }
     hyperparameters['id']=id
     hyperparameters['base_name']=model_base_name
     hyperparameters['input_features']=input_features
@@ -905,7 +902,10 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
     X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
         dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',train_fields=train_fields,company_index_array=company_index_array,
             normalize=hyperparameters['normalize'],plot_dataset=plot_graphs,train_percent=hyperparameters['train_percent'],val_percent=hyperparameters['val_percent'])
-            
+    
+    if len(train_fields)>1{
+        hyperparameters['base_name']+='-IFs{}'.format(len(train_fields))
+    }
     model_path=MODELS_PATH+hyperparameters['base_name']+'_'+stock_name
     model_model_path=model_path+'.h5'
     model_hyperparam_path=model_path+'_hyperparams.json'
@@ -1029,7 +1029,7 @@ def downloadAllReferenceDatasets(){
 def restoreBestModelCheckpoint(){
     models={}
     for file_str in os.listdir(MODELS_PATH){
-        re_result=re.search(r'model_id-([0-9]+_.*?(?=_)).*\.(h5|json)', file_str)
+        re_result=re.search(r'model_id-([0-9]+(?:-?[a-zA-Z]*?[0-9]*?)_.*?(?=_)).*\.(h5|json)', file_str)
         if re_result{
             model_id=re_result.group(1)
             if model_id not in models{
