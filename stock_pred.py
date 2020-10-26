@@ -1041,7 +1041,7 @@ def downloadAllReferenceDatasets(){
 def restoreBestModelCheckpoint(){
     models={}
     for file_str in os.listdir(MODELS_PATH){
-        re_result=re.search(r'model_id-([0-9]*)_.*\.(h5|json)', file_str)
+        re_result=re.search(r'model_id-([0-9]+_.*?(?=_)).*\.(h5|json)', file_str)
         if re_result{
             model_id=re_result.group(1)
             if model_id not in models{
@@ -1056,11 +1056,11 @@ def restoreBestModelCheckpoint(){
         model_filename=None
         metrics_filename=None
         for file in files{
-            if re.search(r'model_id-[0-9]_.*_checkpoint\.h5', file){
+            if re.search(r'model_id-[0-9]+_.*_checkpoint\.h5', file){
                 checkpoint_filename=file
-            }elif re.search(r'model_id-[0-9].*(?<![_checkpoint|_last_patience])\.h5', file){
+            }elif re.search(r'model_id-[0-9]+.*(?<![_checkpoint|_last_patience])\.h5', file){
                 model_filename=file
-            }elif re.search(r'model_id-[0-9]_.*(?<!_last_patience)_metrics\.json', file){
+            }elif re.search(r'model_id-[0-9]+_.*(?<!_last_patience)_metrics\.json', file){
                 metrics_filename=file
             }      
         }
