@@ -519,15 +519,16 @@ def calculateLayerOutputSize(layer_input_size,network_output_size,train_data_siz
     }
 }
 
-def modeler(id=0,train_size=13666){ # default train_size based on GE data
+def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_size based on GE data
     model_base_name='model_id-{}'.format(id)
+    input_features=len(input_features)
     hyperparameters={}
     if id==0{
         pass # final model will be here
+        # since the best models are 2 and 11, there is no final model
     }elif id==1{
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -547,7 +548,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==2{
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -567,7 +567,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==3{ #cams
         a=4 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=30
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=3
@@ -588,7 +587,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==4 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=59
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=3
@@ -609,7 +607,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==5 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=30
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=2
@@ -629,7 +626,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==6 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=10
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -649,7 +645,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==6 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=10
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -669,7 +664,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==7 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=90
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=3
@@ -690,7 +684,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==8 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=7
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -710,7 +703,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==9 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=7
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -730,7 +722,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==10 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=15
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=2
@@ -750,7 +741,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==11 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=66
         hyperparameters['forward_samples']=6
         hyperparameters['lstm_layers']=2
@@ -770,7 +760,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==12 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=20
         hyperparameters['forward_samples']=10
         hyperparameters['lstm_layers']=2
@@ -790,7 +779,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==13 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=33
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -810,7 +798,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==14 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=33
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -830,7 +817,6 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
     }elif id==15 {
         a=2 # from 2 to 8
         hyperparameters['amount_companies']=1
-        hyperparameters['input_features']=1
         hyperparameters['backwards_samples']=33
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=2
@@ -851,8 +837,12 @@ def modeler(id=0,train_size=13666){ # default train_size based on GE data
         return None
     }
 
+    if input_features>1{
+        model_base_name+='_IFs{}'.format(input_features)
+    }
     hyperparameters['id']=id
     hyperparameters['base_name']=model_base_name
+    hyperparameters['input_features']=input_features
     if hyperparameters['stateful']{
         hyperparameters['batch_size']=1 # batch size must be one for stateful
     }
@@ -909,7 +899,7 @@ def fixIfStatefulModel(hyperparameters,model,stock_name){
 }
 
 def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True,train_fields=['Close'],company_index_array=[0]){
-    hyperparameters=modeler(id=model_id) 
+    hyperparameters=modeler(id=model_id,input_features=train_fields) 
     investiment=22000  
     
     X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
@@ -918,9 +908,6 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             
     model_path=MODELS_PATH+hyperparameters['base_name']+'_'+stock_name
     model_model_path=model_path+'.h5'
-    if len(train_fields)>1{
-        model_model_path+='_IFs{}'.format(len(train_fields))
-    }
     model_hyperparam_path=model_path+'_hyperparams.json'
     model_metrics_path=model_path+'_metrics.json'
     model_scaler_path=model_path+'_scaler.bin'
@@ -1111,7 +1098,8 @@ def QP1(plot_and_load=True){
 def QP2(plot_and_load=True){
     dataset_paths=['datasets/GE_I1d_F0_T2020-10.csv','datasets/AAPL_I1d_F0_T2020-10.csv','datasets/AZUL_I1d_F0_T2020-10.csv','datasets/BTC-USD_I1d_F0_T2020-10.csv','datasets/PBR_I1d_F0_T2020-10.csv','datasets/TSLA_I1d_F0_T2020-10.csv','datasets/VALE_I1d_F0_T2020-10.csv']
     for dataset in dataset_paths{
-        loadTrainAndSaveModel(model_id=0,train_fields=['Open','High','Low','Close','Adj Close','Volume'],dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=2,train_fields=['Open','High','Low','Close','Adj Close','Volume'],dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=11,train_fields=['Open','High','Low','Close','Adj Close','Volume'],dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
