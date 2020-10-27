@@ -326,6 +326,7 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
     if amount_of_companies==1 {
         full_data=full_data[0].values.reshape(full_data[0].shape[0],len(fields))
     }else{
+        # TODO fix sizes
         for i in range(len(full_data)){
             full_data[i]=full_data[i].values.reshape(full_data[i].shape[0],len(fields))
         }
@@ -1137,11 +1138,14 @@ def QP2(plot_and_load=True){
 }
 
 def QP3(plot_and_load=True){
-    dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv','datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
+    new_datasets_paths=['datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
+    dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv']+new_datasets_paths
     company_index_array=[0,1,2,3,4,5,6,7]
-    loadTrainAndSaveModel(model_id=0,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
-    for dataset in dataset_paths{
-        loadTrainAndSaveModel(model_id=0,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    loadTrainAndSaveModel(model_id=2,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    loadTrainAndSaveModel(model_id=11,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    for dataset in new_datasets_paths{
+        loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
