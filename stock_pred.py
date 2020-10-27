@@ -1057,6 +1057,7 @@ def downloadAllReferenceDatasets(){
 }
 
 def restoreBestModelCheckpoint(){
+    print_models=False
     models={}
     for file_str in os.listdir(MODELS_PATH){
         re_result=re.search(r'model_id-([0-9]+(?:-?[a-zA-Z]*?[0-9]*?)_.*?(?=_)).*\.(h5|json)', file_str)
@@ -1069,20 +1070,30 @@ def restoreBestModelCheckpoint(){
             }
         }
     }
+    if print_models{
+        models_list = list(models.keys())
+        models_list.sort()
+        for key in models_list{
+            print('Keys: {} len: {}'.format(key,len(models[key])))
+        }
+    }
     for _,files in models.items(){
         checkpoint_filename=None
         model_filename=None
         metrics_filename=None
+        last_patience_filename=None
         for file in files{
-            if re.search(r'model_id-[0-9]+_.*_checkpoint\.h5', file){
+            if re.search(r'model_id-[0-9]+.*_checkpoint\.h5', file){
                 checkpoint_filename=file
             }elif re.search(r'model_id-[0-9]+.*(?<![_checkpoint|_last_patience])\.h5', file){
                 model_filename=file
-            }elif re.search(r'model_id-[0-9]+_.*(?<!_last_patience)_metrics\.json', file){
+            }elif re.search(r'model_id-[0-9]+.*(?<!_last_patience)_metrics\.json', file){
                 metrics_filename=file
+            }elif re.search(r'model_id-[0-9]+.*_last_patience\.h5', file){
+                last_patience_filename=file
             }      
         }
-        if checkpoint_filename is not None and model_filename is not None{
+        if checkpoint_filename is not None and model_filename is not None and last_patience_filename is None{
             print('Restoring checkpoint {}'.format(checkpoint_filename))
             shutil.move(MODELS_PATH+model_filename,MODELS_PATH+model_filename.split('.')[0]+'_last_patience.h5')
             shutil.move(MODELS_PATH+checkpoint_filename,MODELS_PATH+model_filename)
