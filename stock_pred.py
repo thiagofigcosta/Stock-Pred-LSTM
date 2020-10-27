@@ -1061,7 +1061,7 @@ def restoreBestModelCheckpoint(){
     print_models=False
     models={}
     for file_str in os.listdir(MODELS_PATH){
-        re_result=re.search(r'model_id-([0-9]+(?:-?[a-zA-Z]*?[0-9]*?)_.*?(?=_)).*\.(h5|json)', file_str)
+        re_result=re.search(r'model_id-([0-9]+(?:-?[a-zA-Z]*?[0-9]*?)_.*?(?=_)_I[0-9]+[a-zA-Z]+).*\.(h5|json)', file_str)
         if re_result{
             model_id=re_result.group(1)
             if model_id not in models{
@@ -1167,7 +1167,8 @@ def QP4(plot_and_load=True){
     'datasets/VALE_I1h_R1y_S2016.csv','datasets/VALE_I1h_R1y_S2017.csv','datasets/VALE_I1h_R1y_S2018.csv',
     'datasets/VALE_I1h_R1y_S2019.csv','datasets/VALE_I1h_R1y_S2020.csv']] 
     for dataset in dataset_paths{
-        loadTrainAndSaveModel(model_id=0,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
