@@ -997,9 +997,13 @@ def isolateMultiCompanyArray(uncompacted_array,amount_companies){
     for i in range(amount_companies){
         isolated_array.append([])
     }
-    for sample in uncompacted_array{
+    for samples in uncompacted_array{
         for i in range(amount_companies){
-            isolated_array[i].append(sample[i])
+            company_sample=[]
+            for j in range(len(samples)){
+                company_sample.append(samples[j][i])
+            }
+            isolated_array[i].append(company_sample)
         }
     }
     return np.array(isolated_array)
