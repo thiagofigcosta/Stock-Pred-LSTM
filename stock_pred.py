@@ -235,16 +235,20 @@ def unwrapFoldedArray(array,use_last=False,use_mean=False,magic_offset=0){
     return unwraped    
 }
 
-def extractIfList(x,last_instead_of_all_but_last=False){
-    if isinstance(x, (list,pd.core.series.Series,np.ndarray)){
-        if last_instead_of_all_but_last{
-            return x[-1]
+def extractIfList(y,last_instead_of_all_but_last=False){
+    new_y=[]
+    for x in y{
+        if isinstance(x, (list,pd.core.series.Series,np.ndarray)){
+            if last_instead_of_all_but_last{
+                new_y.append(x[-1])
+            }else{
+                new_y.append(x[:-1])
+            }
         }else{
-            return x[:-1]
+            new_y.append(x)
         }
-    }else{
-        return x
     }
+    return new_y
 }
 
 def binarySearch(lis,el){ # list must be sorted
@@ -352,7 +356,11 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
             path=paths[i]
             if last_company != company{
                 last_company=company
-                dataset_name.append(filenameFromPath(path))
+                current_filename=filenameFromPath(path)
+                if i!=len(company_index_array)-1{
+                    current_filename=current_filename.split('_')[0]
+                }
+                dataset_name.append(current_filename)
                 if len(frames)>0{
                     full_data.append(pd.concat(frames))
                     frames=[]
@@ -360,7 +368,7 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
             }
             frames.append(pd.read_csv(path))
         }
-        dataset_name='_'.join(dataset_name)
+        dataset_name='_'+'+'.join(dataset_name)
         if len(frames)>0{
             full_data.append(pd.concat(frames))
             frames=[]
@@ -461,7 +469,12 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
     X_full_data=np.array(X_full_data)
     Y_full_data=np.array(Y_full_data)
 
-    if len(train_fields) > 1{
+    if amount_of_companies>1{
+        Y_shape=Y_full_data.shape
+        Y_full_data = Y_full_data.reshape(Y_shape[0], Y_shape[1]*Y_shape[2])
+    }
+    
+    if len(train_fields) > 1 or amount_of_companies>1{
         scalerX = MinMaxScaler(feature_range=(0, 1))
         scalerY = MinMaxScaler(feature_range=(0, 1))
         if normalize{
@@ -579,7 +592,7 @@ def autoBuy13(total_money_to_invest,stock_real_array,stock_pred_array,saving_per
     savings_money=0
     current_money=total_money_to_invest
     for i in range(len(real_stock_delta)){
-        if pred_stock_delta[i] > 0{
+        if pred_stock_delta[i] > 0 and stock_real_array[i-1]>0{
             stock_buy_price=stock_real_array[i-1]
             stock_predicted_sell_price=stock_pred_array[i]
             predicted_valuing=stock_predicted_sell_price/stock_buy_price
@@ -628,7 +641,7 @@ def calculateLayerOutputSize(layer_input_size,network_output_size,train_data_siz
     }
 }
 
-def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_size based on GE data
+def modeler(id=0,train_size=13666,input_features=['Close'],amount_companies=1){ # default train_size based on GE data
     model_base_name='model_id-{}'.format(id)
     input_features=len(input_features)
     hyperparameters={}
@@ -637,7 +650,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         # since the best models are 2 and 11, there is no final model
     }elif id==1{
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -656,11 +668,10 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==2{
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
-        hyperparameters['max_epochs']=200
+        hyperparameters['max_epochs']=1
         hyperparameters['patience_epochs']=10
         hyperparameters['batch_size']=1
         hyperparameters['stateful']=True
@@ -675,7 +686,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==3{ #cams
         a=4 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=30
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=3
@@ -695,7 +705,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==4 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=59
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=3
@@ -715,7 +724,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==5 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=30
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=2
@@ -734,7 +742,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==6 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=10
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -753,7 +760,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==7 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=90
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=3
@@ -773,7 +779,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==8 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=7
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -792,7 +797,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==9 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=7
         hyperparameters['forward_samples']=3
         hyperparameters['lstm_layers']=2
@@ -811,7 +815,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==10 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=15
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=2
@@ -830,7 +833,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==11 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=66
         hyperparameters['forward_samples']=6
         hyperparameters['lstm_layers']=2
@@ -849,7 +851,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==12 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=20
         hyperparameters['forward_samples']=10
         hyperparameters['lstm_layers']=2
@@ -868,7 +869,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==13 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=33
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -887,7 +887,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==14 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=33
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
@@ -906,7 +905,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['val_percent']=.2
     }elif id==15 {
         a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
         hyperparameters['backwards_samples']=33
         hyperparameters['forward_samples']=5
         hyperparameters['lstm_layers']=2
@@ -930,6 +928,7 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
     hyperparameters['id']=id
     hyperparameters['base_name']=model_base_name
     hyperparameters['input_features']=input_features
+    hyperparameters['amount_companies']=amount_companies
     if hyperparameters['stateful']{
         hyperparameters['batch_size']=1 # batch size must be one for stateful
     }
@@ -964,7 +963,7 @@ def modelBuilder(hyperparameters,stock_name,print_summary=True){
             model.add(Dropout(hyperparameters['dropout_values'][l]))
         }
     }
-    model.add(Dense(hyperparameters['forward_samples']))
+    model.add(Dense(hyperparameters['forward_samples']*hyperparameters['amount_companies']))
     if print_summary {
         print(model.summary())
     }
@@ -985,8 +984,28 @@ def fixIfStatefulModel(hyperparameters,model,stock_name){
     return new_model
 }
 
+
+def uncompactMultiCompanyArray(compacted_array,amount_companies){
+    shape=compacted_array.shape
+    newshape=(shape[0], int(shape[1]/amount_companies), amount_companies)
+    return np.reshape(compacted_array, newshape=newshape)
+}
+
+def isolateMultiCompanyArray(uncompacted_array,amount_companies){
+    isolated_array=[]
+    for i in range(amount_companies){
+        isolated_array.append([])
+    }
+    for sample in uncompacted_array{
+        for i in range(amount_companies){
+            isolated_array[i].append(sample[i])
+        }
+    }
+    return np.array(isolated_array)
+}
+
 def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True,train_fields=['Close'],company_index_array=[0],from_date=None){
-    hyperparameters=modeler(id=model_id,input_features=train_fields) 
+    hyperparameters=modeler(id=model_id,input_features=train_fields,amount_companies=len(set(company_index_array))) 
     investiment=22000  
     
     X_train,Y_train,X_val,Y_val,X_test,Y_test,firstScaler,secondScaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
@@ -1066,57 +1085,136 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
         }
     }
 
-    Y_test_unwraped=unwrapFoldedArray(Y_test)
-    Y_test_pred_first_val, Y_test_pred_last_val,\
-         Y_test_pred_mean_val, Y_test_pred_fl_mean_val=processPredictedArray(Y_test_predicted)
-    Y_full=unwrapFoldedArray(np.vstack((Y_train_full,Y_test)))
-    Y_train_pred_first_val, Y_train_pred_last_val,\
-         Y_train_pred_mean_val, Y_train_pred_fl_mean_val=processPredictedArray(Y_train_predicted)
-    
-
-    model_metrics=model.evaluate(X_test[:len(Y_test)],Y_test)
-    aux={}
-    for i in range(len(model_metrics)){
-        aux[model.metrics_names[i]] = model_metrics[i]
-    }
-    model_metrics=aux
-    swing_return,buy_hold_return,class_metrics=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
-    viniccius13_return=autoBuy13(investiment,Y_test_unwraped,Y_test_pred_fl_mean_val)
-    strategy_metrics={'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return,'Auto13(${}) Return'.format(investiment):viniccius13_return}
-    metrics={'Strategy Metrics':strategy_metrics,'Model Metrics':model_metrics,'Class Metrics':class_metrics}
-    with open(model_metrics_path, 'w') as fp{
-        json.dump(metrics, fp)
-    }
-    print('Model Metrics saved at {};'.format(model_metrics_path))
-
-    printDict(model_metrics,'Model metrics')
-    printDict(class_metrics,'Class metrics')
-    printDict(strategy_metrics,'Strategy metrics')
-
     if plot_graphs{
         plt.plot(history['loss'], label='loss')
         plt.plot(history['val_loss'], label='val_loss')
         plt.legend(loc='best')
+        plt.title('Training loss of {}'.format(stock_name))
         plt.show() 
+    }
 
-        input_size=hyperparameters['backwards_samples']
-        output_size=hyperparameters['forward_samples']
-        plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
-        plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
-        plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
-        plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
-        plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
-        plt.legend(loc='best')
-        plt.show() 
+    if hyperparameters['amount_companies']>1{
+        model_metrics=model.evaluate(X_test[:len(Y_test)],Y_test)
+        aux={}
+        for i in range(len(model_metrics)){
+            aux[model.metrics_names[i]] = model_metrics[i]
+        }
+        model_metrics=aux
 
-        full_date_index=train_date_index[1:-input_size]+test_date_index
-        plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
-        plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
-        plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
-        plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
-        plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
-        plt.legend(loc='best')
-        plt.show() 
+        Y_test_predicted=uncompactMultiCompanyArray(Y_test_predicted,hyperparameters['amount_companies'])
+        Y_train_predicted=uncompactMultiCompanyArray(Y_train_predicted,hyperparameters['amount_companies'])
+        Y_train_full=uncompactMultiCompanyArray(Y_train_full,hyperparameters['amount_companies'])
+        Y_test=uncompactMultiCompanyArray(Y_test,hyperparameters['amount_companies'])
+
+        Y_test_predicted=isolateMultiCompanyArray(Y_test_predicted,hyperparameters['amount_companies'])
+        Y_train_predicted=isolateMultiCompanyArray(Y_train_predicted,hyperparameters['amount_companies'])
+        Y_train_full=isolateMultiCompanyArray(Y_train_full,hyperparameters['amount_companies'])
+        Y_test=isolateMultiCompanyArray(Y_test,hyperparameters['amount_companies'])
+
+        metrics={'Strategy Metrics':[],'Model Metrics':model_metrics,'Class Metrics':[]}
+
+        for i in range(hyperparameters['amount_companies']){
+            Y_test_unwraped=unwrapFoldedArray(Y_test[i])
+            Y_test_pred_first_val, Y_test_pred_last_val,\
+                Y_test_pred_mean_val, Y_test_pred_fl_mean_val=processPredictedArray(Y_test_predicted[i])
+            Y_full=unwrapFoldedArray(np.vstack((Y_train_full[i],Y_test[i])))
+            Y_train_pred_first_val, Y_train_pred_last_val,\
+                Y_train_pred_mean_val, Y_train_pred_fl_mean_val=processPredictedArray(Y_train_predicted[i])
+
+            swing_return,buy_hold_return,class_metrics=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
+            viniccius13_return=autoBuy13(investiment,Y_test_unwraped,Y_test_pred_fl_mean_val)
+            strategy_metrics={'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return,'Auto13(${}) Return'.format(investiment):viniccius13_return}
+            
+            strategy_metrics['company']='{} of {}'.format(i+1,hyperparameters['amount_companies'])
+            class_metrics['company']='{} of {}'.format(i+1,hyperparameters['amount_companies'])
+            metrics['Strategy Metrics'].append(strategy_metrics)
+            metrics['Class Metrics'].append(class_metrics)
+
+            printDict(model_metrics,'Model metrics {} of {}'.format(i+1,hyperparameters['amount_companies']))
+            printDict(class_metrics,'Class metrics {} of {}'.format(i+1,hyperparameters['amount_companies']))
+            printDict(strategy_metrics,'Strategy metrics {} of {}'.format(i+1,hyperparameters['amount_companies']))
+
+            if plot_graphs{
+                input_size=hyperparameters['backwards_samples']
+                output_size=hyperparameters['forward_samples']
+                plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
+                plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
+                plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
+                plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
+                plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
+                plt.title('Training stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
+                plt.legend(loc='best')
+                plt.show() 
+
+                full_date_index=train_date_index[1:-input_size]+test_date_index
+                plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
+                plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
+                plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
+                plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
+                plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
+                plt.title('Complete stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
+                plt.legend(loc='best')
+                plt.show() 
+            }
+        }
+
+        with open(model_metrics_path, 'w') as fp{
+            json.dump(metrics, fp)
+        }
+        print('Model Metrics saved at {};'.format(model_metrics_path))
+
+        # TODO voltar max_epochs do modelo 2 para 200
+        # TODO voltar plot na qp3 pro valor certo
+    }else{
+        Y_test_unwraped=unwrapFoldedArray(Y_test)
+        Y_test_pred_first_val, Y_test_pred_last_val,\
+            Y_test_pred_mean_val, Y_test_pred_fl_mean_val=processPredictedArray(Y_test_predicted)
+        Y_full=unwrapFoldedArray(np.vstack((Y_train_full,Y_test)))
+        Y_train_pred_first_val, Y_train_pred_last_val,\
+            Y_train_pred_mean_val, Y_train_pred_fl_mean_val=processPredictedArray(Y_train_predicted)
+        
+
+        model_metrics=model.evaluate(X_test[:len(Y_test)],Y_test)
+        aux={}
+        for i in range(len(model_metrics)){
+            aux[model.metrics_names[i]] = model_metrics[i]
+        }
+        model_metrics=aux
+        swing_return,buy_hold_return,class_metrics=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
+        viniccius13_return=autoBuy13(investiment,Y_test_unwraped,Y_test_pred_fl_mean_val)
+        strategy_metrics={'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return,'Auto13(${}) Return'.format(investiment):viniccius13_return}
+        metrics={'Strategy Metrics':strategy_metrics,'Model Metrics':model_metrics,'Class Metrics':class_metrics}
+        with open(model_metrics_path, 'w') as fp{
+            json.dump(metrics, fp)
+        }
+        print('Model Metrics saved at {};'.format(model_metrics_path))
+
+        printDict(model_metrics,'Model metrics')
+        printDict(class_metrics,'Class metrics')
+        printDict(strategy_metrics,'Strategy metrics')
+
+        if plot_graphs{
+            input_size=hyperparameters['backwards_samples']
+            output_size=hyperparameters['forward_samples']
+            plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
+            plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
+            plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
+            plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
+            plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
+            plt.title('Training stock values {}'.format(stock_name))
+            plt.legend(loc='best')
+            plt.show() 
+
+            full_date_index=train_date_index[1:-input_size]+test_date_index
+            plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
+            plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
+            plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
+            plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
+            plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
+            plt.title('Complete stock values {}'.format(stock_name))
+            plt.legend(loc='best')
+            plt.show() 
+        }
     }
 }
 
@@ -1226,7 +1324,7 @@ def QP2(plot_and_load=True){
 def QP3(plot_and_load=True){
     dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv','datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
     company_index_array=[0,1,2,3,4,5,6,7]
-    loadTrainAndSaveModel(model_id=2,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    loadTrainAndSaveModel(model_id=2,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=True)
     loadTrainAndSaveModel(model_id=11,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     for dataset in dataset_paths{
         loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,from_date='29/04/2013',load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
