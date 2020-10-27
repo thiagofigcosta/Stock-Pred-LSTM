@@ -368,7 +368,7 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
             }
             frames.append(pd.read_csv(path))
         }
-        dataset_name='_'+'+'.join(dataset_name)
+        dataset_name='+'.join(dataset_name)
         if len(frames)>0{
             full_data.append(pd.concat(frames))
             frames=[]
@@ -421,6 +421,7 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
         full_data=full_data[0].values.reshape(full_data[0].shape[0],len(fields))
     }else{
         full_data=alignOnFirstAndLastCommonIndexes(full_data)
+        date_index_array = full_data[0].index
         for i in range(len(full_data)){
             full_data[i]=full_data[i].values.reshape(full_data[i].shape[0],len(fields))
         }
@@ -671,7 +672,7 @@ def modeler(id=0,train_size=13666,input_features=['Close'],amount_companies=1){ 
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
-        hyperparameters['max_epochs']=1
+        hyperparameters['max_epochs']=200
         hyperparameters['patience_epochs']=10
         hyperparameters['batch_size']=1
         hyperparameters['stateful']=True
@@ -1121,37 +1122,42 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             Y_train_pred_first_val, Y_train_pred_last_val,\
                 Y_train_pred_mean_val, Y_train_pred_fl_mean_val=processPredictedArray(Y_train_predicted[i])
 
-            swing_return,buy_hold_return,class_metrics=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
+            swing_return,buy_hold_return,class_metrics_tmp=analyzeStrategiesAndClassMetrics(Y_test_unwraped,Y_test_pred_fl_mean_val)
             viniccius13_return=autoBuy13(investiment,Y_test_unwraped,Y_test_pred_fl_mean_val)
-            strategy_metrics={'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return,'Auto13(${}) Return'.format(investiment):viniccius13_return}
-            
-            strategy_metrics['company']='{} of {}'.format(i+1,hyperparameters['amount_companies'])
-            class_metrics['company']='{} of {}'.format(i+1,hyperparameters['amount_companies'])
+            strategy_metrics={'Company':'{} of {}'.format(i+1,hyperparameters['amount_companies']),'Daily Swing Trade Return':swing_return,'Buy & Hold Return':buy_hold_return,'Auto13(${}) Return'.format(investiment):viniccius13_return}
+
+            class_metrics={'Company':'{} of {}'.format(i+1,hyperparameters['amount_companies'])}
+            for key, value in class_metrics_tmp.items(){
+                class_metrics[key]=value
+            }
+
             metrics['Strategy Metrics'].append(strategy_metrics)
             metrics['Class Metrics'].append(class_metrics)
 
-            printDict(model_metrics,'Model metrics {} of {}'.format(i+1,hyperparameters['amount_companies']))
-            printDict(class_metrics,'Class metrics {} of {}'.format(i+1,hyperparameters['amount_companies']))
-            printDict(strategy_metrics,'Strategy metrics {} of {}'.format(i+1,hyperparameters['amount_companies']))
+            printDict(model_metrics,'Model metrics')
+            printDict(class_metrics,'Class metrics')
+            printDict(strategy_metrics,'Strategy metrics')
 
             if plot_graphs{
+                magic=hyperparameters['amount_companies']-1 #?
                 input_size=hyperparameters['backwards_samples']
                 output_size=hyperparameters['forward_samples']
-                plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
-                plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
-                plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
-                plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
-                plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
+
+                plt.plot(test_date_index[input_size+magic:-output_size+1],Y_test_unwraped, label='Real')
+                plt.plot(test_date_index[input_size+magic:],Y_test_pred_first_val, color='r', label='Predicted F')
+                plt.plot(test_date_index[input_size+magic:],Y_test_pred_last_val, label='Predicted L')
+                plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Predicted Mean')
+                plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
                 plt.title('Training stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
                 plt.legend(loc='best')
                 plt.show() 
 
                 full_date_index=train_date_index[1:-input_size]+test_date_index
-                plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
-                plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
-                plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
-                plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
-                plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
+                plt.plot(full_date_index[input_size+magic:-(output_size-1)],Y_full, label='Real Full data')
+                plt.plot(train_date_index[input_size+2+magic:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
+                plt.plot(train_date_index[input_size+2+magic:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
+                plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Test Predicted Mean')
+                plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
                 plt.title('Complete stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
                 plt.legend(loc='best')
                 plt.show() 
@@ -1162,9 +1168,6 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             json.dump(metrics, fp)
         }
         print('Model Metrics saved at {};'.format(model_metrics_path))
-
-        # TODO voltar max_epochs do modelo 2 para 200
-        # TODO voltar plot na qp3 pro valor certo
     }else{
         Y_test_unwraped=unwrapFoldedArray(Y_test)
         Y_test_pred_first_val, Y_test_pred_last_val,\
@@ -1324,7 +1327,7 @@ def QP2(plot_and_load=True){
 def QP3(plot_and_load=True){
     dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv','datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
     company_index_array=[0,1,2,3,4,5,6,7]
-    loadTrainAndSaveModel(model_id=2,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=True)
+    loadTrainAndSaveModel(model_id=2,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     loadTrainAndSaveModel(model_id=11,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     for dataset in dataset_paths{
         loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,from_date='29/04/2013',load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
