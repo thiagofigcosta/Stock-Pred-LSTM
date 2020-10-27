@@ -247,8 +247,90 @@ def extractIfList(x,last_instead_of_all_but_last=False){
     }
 }
 
+def binarySearch(lis,el){ # list must be sorted
+    low=0
+    high=len(lis)-1
+    ret=None 
+    while low<=high{
+        mid=(low+high)//2
+        if el<lis[mid]{
+            high=mid-1
+        }elif el>lis[mid]{
+            low=mid+1
+        }else{
+            ret=mid
+            break
+        }
+    }
+    return ret
+}
+
+def alignAndCropTwoArrays(first,second,reverse=False){
+    sorted_second=second
+    sorted_second.sort()
+    used_first=first.copy()
+    if reverse{
+        used_first.reverse()
+    }
+    common=None
+    for el in used_first{
+        ind=binarySearch(sorted_second,el)
+        if ind is not None{
+            common=el
+            break
+        }
+    }
+    if common is None{
+        raise Exception('No common element between arrays')
+    }else{
+        if reverse{
+            return first[:first.index(common)+1], second[:second.index(common)+1], common
+        }else{
+            return first[first.index(common):], second[second.index(common):], common
+        }
+    }
+}
+
+def alignIndexesOnFirstCommonValue(array_of_indexes,reverse=False){
+    start=0
+    last_common=None
+    limit=len(array_of_indexes)-1
+    while start<limit{
+        f_array,s_array,common=alignAndCropTwoArrays(array_of_indexes[start],array_of_indexes[start+1],reverse=reverse)
+        array_of_indexes[start]=f_array
+        array_of_indexes[start+1]=s_array
+        if common != last_common{
+            if last_common is not None{
+                start=-1
+            }
+            last_common=common
+        }
+        start+=1
+    }
+    if reverse{
+        [el.reverse() for el in array_of_indexes]
+    }
+    return array_of_indexes
+}
+
+def alignOnFirstAndLastCommonIndexes(array_of_data){
+    array_of_indexes=[]
+    for data in array_of_data{
+        array_of_indexes.append(data.index.tolist())
+    }
+    aligned_array_of_indexes=alignIndexesOnFirstCommonValue(array_of_indexes)
+    for i in range(len(array_of_data)){
+        array_of_data[i]=array_of_data[i][aligned_array_of_indexes[i][0]:]
+    }
+    aligned_array_of_indexes=alignIndexesOnFirstCommonValue(array_of_indexes,reverse=True)
+    for i in range(len(array_of_data)){
+        array_of_data[i]=array_of_data[i][:aligned_array_of_indexes[i][0]]
+    }
+    return array_of_data
+}
+
 # input_size is the amount of data points taken into account to predict output_size amount of data points
-def loadDataset(paths,input_size,output_size,company_index_array=[0],train_fields=['Close'],result_field='Close',index_field=None,normalize=False,plot_dataset=False,train_percent=1,val_percent=0){
+def loadDataset(paths,input_size,output_size,company_index_array=[0],train_fields=['Close'],result_field='Close',index_field=None,normalize=False,plot_dataset=False,train_percent=1,val_percent=0,from_date=None){
     if val_percent>1 or train_percent>1 or val_percent<0 or train_percent<0{
         raise Exception('Train + validation percent must be smaller than 1 and bigger than 0')
     }
@@ -309,8 +391,12 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
             full_data[i][index_field] = date_index_array
             full_data[i].set_index(index_field, inplace=True)
         }
-
         full_data[i]=full_data[i][fields]
+        if from_date is not None{
+            full_data[i]= full_data[i][pd.to_datetime(from_date,format=DATE_FORMAT):]
+            d,m,y=extractFromStrDate(from_date)
+            dataset_name+='trunc{}{}{}'.format(y,m,d)
+        }
         if plot_dataset{ 
             if amount_of_companies==1 {
                 label='Stock Values of {}'.format(dataset_name)
@@ -326,7 +412,7 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
     if amount_of_companies==1 {
         full_data=full_data[0].values.reshape(full_data[0].shape[0],len(fields))
     }else{
-        # TODO fix sizes
+        full_data=alignOnFirstAndLastCommonIndexes(full_data)
         for i in range(len(full_data)){
             full_data[i]=full_data[i].values.reshape(full_data[i].shape[0],len(fields))
         }
@@ -899,13 +985,13 @@ def fixIfStatefulModel(hyperparameters,model,stock_name){
     return new_model
 }
 
-def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True,train_fields=['Close'],company_index_array=[0]){
+def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=False,plot_graphs=True,train_fields=['Close'],company_index_array=[0],from_date=None){
     hyperparameters=modeler(id=model_id,input_features=train_fields) 
     investiment=22000  
     
     X_train,Y_train,X_val,Y_val,X_test,Y_test,firstScaler,secondScaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
         dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',train_fields=train_fields,company_index_array=company_index_array,
-            normalize=hyperparameters['normalize'],plot_dataset=plot_graphs,train_percent=hyperparameters['train_percent'],val_percent=hyperparameters['val_percent'])
+            normalize=hyperparameters['normalize'],plot_dataset=plot_graphs,train_percent=hyperparameters['train_percent'],val_percent=hyperparameters['val_percent'],from_date=from_date)
     
     if len(train_fields)>1{
         hyperparameters['base_name']+='-IFs{}'.format(len(train_fields))
@@ -1138,14 +1224,13 @@ def QP2(plot_and_load=True){
 }
 
 def QP3(plot_and_load=True){
-    new_datasets_paths=['datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
-    dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv']+new_datasets_paths
+    dataset_paths=['datasets/AAPL_I1d_F0_T2020-10.csv','datasets/MSFT_I1d_F0_T2020-10.csv','datasets/GOGL_I1d_F0_T2020-10.csv','datasets/AMZN_I1d_F0_T2020-10.csv','datasets/IBM_I1d_F0_T2020-10.csv','datasets/T_I1d_F0_T2020-10.csv','datasets/FB_I1d_F0_T2020-10.csv','datasets/YOJ.SG_I1d_F0_T2020-10.csv']
     company_index_array=[0,1,2,3,4,5,6,7]
     loadTrainAndSaveModel(model_id=2,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     loadTrainAndSaveModel(model_id=11,dataset_paths=dataset_paths,company_index_array=company_index_array,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
-    for dataset in new_datasets_paths{
-        loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
-        loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    for dataset in dataset_paths{
+        loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,from_date='29/04/2013',load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,from_date='29/04/2013',load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
