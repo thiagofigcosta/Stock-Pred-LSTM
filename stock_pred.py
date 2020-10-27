@@ -333,13 +333,16 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
         full_data = np.concatenate((tuple_of_companies), axis=1)
     }
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    unitedScaler = MinMaxScaler(feature_range=(0, 1))
     if normalize{
-        scaler = scaler.fit(full_data)
-        print('Min: {}, Max: {}'.format(scaler.data_min_, scaler.data_max_))
-        full_data = scaler.transform(full_data)
+        unitedScaler = unitedScaler.fit(full_data)
+        print('Min: {}, Max: {}'.format(unitedScaler.data_min_, unitedScaler.data_max_))
+        full_plot_data = unitedScaler.transform(full_data)
+        if len(train_fields) == 1{ 
+            full_data=full_plot_data
+        }
         if plot_dataset{ 
-            plt.plot(full_data, label='Stock Values of {} normalized'.format(dataset_name))
+            plt.plot(full_plot_data, label='Stock Values of {} normalized'.format(dataset_name))
             plt.legend(loc='best')
             plt.show() 
         }
@@ -371,6 +374,25 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
     X_full_data=np.array(X_full_data)
     Y_full_data=np.array(Y_full_data)
 
+    if len(train_fields) > 1{
+        scalerX = MinMaxScaler(feature_range=(0, 1))
+        scalerY = MinMaxScaler(feature_range=(0, 1))
+        if normalize{
+            instances, time_steps, features = X_full_data.shape
+            X_full_data = np.reshape(X_full_data, newshape=(-1, features))
+            scalerX = scalerX.fit(X_full_data)
+            scalerY = scalerY.fit(Y_full_data)
+            X_full_data = scalerX.transform(X_full_data)
+            Y_full_data = scalerY.transform(Y_full_data)
+            X_full_data = np.reshape(X_full_data, newshape=(instances, time_steps, features))
+        }
+        firstScaler=scalerX
+        secondScaler=scalerY
+    }else{
+        firstScaler=unitedScaler
+        secondScaler=None
+    }
+
     train_idx=int(len(X_full_data)*train_percent)
 
     X_train_full=X_full_data[:train_idx]
@@ -397,7 +419,7 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
         Y_train=Y_train_full
     }
 
-    return X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,X_train_full,Y_train_full,train_date_index,test_date_index,dataset_name
+    return X_train,Y_train,X_val,Y_val,X_test,Y_test,firstScaler,secondScaler,X_train_full,Y_train_full,train_date_index,test_date_index,dataset_name
 }
 
 def processPredictedArray(Y_pred){
@@ -551,7 +573,7 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['backwards_samples']=40
         hyperparameters['forward_samples']=15
         hyperparameters['lstm_layers']=2
-        hyperparameters['max_epochs']=100
+        hyperparameters['max_epochs']=200
         hyperparameters['patience_epochs']=10
         hyperparameters['batch_size']=1
         hyperparameters['stateful']=True
@@ -633,25 +655,6 @@ def modeler(id=0,train_size=13666,input_features=['Close']){ # default train_siz
         hyperparameters['patience_epochs']=10
         hyperparameters['batch_size']=1
         hyperparameters['stateful']=True
-        hyperparameters['dropout_values']=[.6,.1]
-        hyperparameters['lstm_l1_size']=200
-        hyperparameters['lstm_l2_size']=20
-        hyperparameters['normalize']=True
-        hyperparameters['optimizer']='adam'
-        hyperparameters['model_metrics']=['mean_squared_error','mean_absolute_error','accuracy','cosine_similarity']
-        hyperparameters['loss']='mean_squared_error'
-        hyperparameters['train_percent']=.8
-        hyperparameters['val_percent']=.2
-    }elif id==6 {
-        a=2 # from 2 to 8
-        hyperparameters['amount_companies']=1
-        hyperparameters['backwards_samples']=10
-        hyperparameters['forward_samples']=3
-        hyperparameters['lstm_layers']=2
-        hyperparameters['max_epochs']=200
-        hyperparameters['patience_epochs']=10
-        hyperparameters['batch_size']=10
-        hyperparameters['stateful']=False
         hyperparameters['dropout_values']=[.6,.1]
         hyperparameters['lstm_l1_size']=200
         hyperparameters['lstm_l2_size']=20
@@ -899,7 +902,7 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
     hyperparameters=modeler(id=model_id,input_features=train_fields) 
     investiment=22000  
     
-    X_train,Y_train,X_val,Y_val,X_test,Y_test,scaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
+    X_train,Y_train,X_val,Y_val,X_test,Y_test,firstScaler,secondScaler,_,Y_train_full,train_date_index,test_date_index,stock_name = loadDataset(
         dataset_paths,hyperparameters['backwards_samples'],hyperparameters['forward_samples'],index_field='Date',train_fields=train_fields,company_index_array=company_index_array,
             normalize=hyperparameters['normalize'],plot_dataset=plot_graphs,train_percent=hyperparameters['train_percent'],val_percent=hyperparameters['val_percent'])
     
@@ -910,7 +913,12 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
     model_model_path=model_path+'.h5'
     model_hyperparam_path=model_path+'_hyperparams.json'
     model_metrics_path=model_path+'_metrics.json'
-    model_scaler_path=model_path+'_scaler.bin'
+    if secondScaler is not None{
+        model_scalerX_path=model_path+'_scalerX.bin'
+        model_scalerY_path=model_path+'_scalerY.bin'
+    }else{
+        model_scaler_path=model_path+'_scaler.bin'
+    }
     model_history_path=model_path+'_history.json'
     createFolderIfNotExists(MODELS_PATH)
 
@@ -920,7 +928,12 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
         with open(model_hyperparam_path, 'r') as fp {
             hyperparameters=json.load(fp)
         }
-        scaler=loadObj(model_scaler_path)
+        if secondScaler is not None{
+            scalerX=loadObj(model_scalerX_path)
+            scalerY=loadObj(model_scalerY_path)
+        }else{
+            scaler=loadObj(model_scaler_path)
+        }
         history=loadHist(model_history_path)
     }else{
         model,callbacks=modelBuilder(hyperparameters,stock_name)  
@@ -933,8 +946,18 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             json.dump(hyperparameters, fp)
         }
         print('Model Hyperparameters saved at {};'.format(model_hyperparam_path))   
-        saveObj(scaler,model_scaler_path)  
-        print('Model Scaler saved at {};'.format(model_scaler_path))   
+        if secondScaler is not None{
+            scalerX=firstScaler
+            scalerY=secondScaler
+            saveObj(scalerX,model_scalerX_path)  
+            print('Model ScalerX saved at {};'.format(model_scalerX_path))
+            saveObj(scalerY,model_scalerY_path)  
+            print('Model ScalerY saved at {};'.format(model_scalerY_path))
+        }else{
+            scaler=firstScaler
+            saveObj(scaler,model_scaler_path)  
+            print('Model ScalerY saved at {};'.format(model_scaler_path))
+        }
         saveHist(history,model_history_path)  
         print('Model History saved at {};'.format(model_history_path)) 
     }
@@ -943,10 +966,17 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
     Y_train_predicted = model.predict(X_train)
 
     if hyperparameters['normalize'] {
-        Y_test_predicted=scaler.inverse_transform(Y_test_predicted)
-        Y_train_predicted=scaler.inverse_transform(Y_train_full)
-        Y_train_full=scaler.inverse_transform(Y_train_full)
-        Y_test=scaler.inverse_transform(Y_test)
+        if secondScaler is not None{
+            Y_test_predicted=scalerY.inverse_transform(Y_test_predicted)
+            Y_train_predicted=scalerY.inverse_transform(Y_train_full)
+            Y_train_full=scalerY.inverse_transform(Y_train_full)
+            Y_test=scalerY.inverse_transform(Y_test)
+        }else{
+            Y_test_predicted=scaler.inverse_transform(Y_test_predicted)
+            Y_train_predicted=scaler.inverse_transform(Y_train_full)
+            Y_train_full=scaler.inverse_transform(Y_train_full)
+            Y_test=scaler.inverse_transform(Y_test)
+        }
     }
 
     Y_test_unwraped=unwrapFoldedArray(Y_test)
@@ -1075,15 +1105,7 @@ def trainAllProposedTestModels(dataset_paths,start_at=0,plot_and_load=False){
     }
     for i in range(start_at+1,last_test_model_id){
         print("Model {}".format(i))
-        try{
-            loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
-        }except{
-            print("Model {} - WITH EXCEPTION, KEEP GOING...".format(i))
-            print()
-            print()
-            print()
-            print("Model {} - WITH EXCEPTION, KEEP GOING...".format(i))
-        }
+        loadTrainAndSaveModel(model_id=i,dataset_paths=dataset_paths,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
