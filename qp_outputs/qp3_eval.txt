@@ -1,0 +1,607 @@
+Min: [ 14.063571  31.15       2.55     248.229996  94.769997  26.76
+  22.9        2.08    ], Max: [ 134.179993  231.649994   80.800003 3531.449951  209.360001   43.470001
+  303.910004    6.45    ]
+ 1/12 [=>............................] - ETA: 0s - loss: 0.0027 - mean_squared_error: 0.0027 - mean_absolute_error: 0.0410 - accuracy: 0.1562 - cosine_similarity: 0.9916 8/12 [===================>..........] - ETA: 0s - loss: 0.0206 - mean_squared_error: 0.0206 - mean_absolute_error: 0.1041 - accuracy: 0.0508 - cosine_similarity: 0.962212/12 [==============================] - 0s 7ms/step - loss: 0.0479 - mean_squared_error: 0.0479 - mean_absolute_error: 0.1586 - accuracy: 0.0451 - cosine_similarity: 0.9450
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 1 of 8
+	f1_monark: 0.5759162303664921
+	accuracy: 0.5597826086956522
+	precision: 0.6145251396648045
+	recall: 0.541871921182266
+	roc auc: 0.5618450515002239
+Strategy metrics:
+	Company: 1 of 8
+	Daily Swing Trade Return: 0.9050592599236755
+	Buy & Hold Return: 0.5560855117712381
+	Auto13($22000) Return: 3510.3491000006725
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 2 of 8
+	f1_monark: 0.6253229974160206
+	accuracy: 0.6059782608695652
+	precision: 0.6836158192090396
+	recall: 0.5761904761904761
+	roc auc: 0.6108800482218203
+Strategy metrics:
+	Company: 2 of 8
+	Daily Swing Trade Return: 1.3116712661846766
+	Buy & Hold Return: 0.4445386517068922
+	Auto13($22000) Return: 4639.798259709674
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 3 of 8
+	f1_monark: 0.5445026178010473
+	accuracy: 0.5271739130434783
+	precision: 0.5333333333333333
+	recall: 0.5561497326203209
+	roc auc: 0.5266936508405471
+Strategy metrics:
+	Company: 3 of 8
+	Daily Swing Trade Return: -5.551115123125783e-17
+	Buy & Hold Return: -0.023642171617552513
+	Auto13($22000) Return: -5543.367327410844
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 4 of 8
+	f1_monark: 0.6546391752577319
+	accuracy: 0.6358695652173914
+	precision: 0.675531914893617
+	recall: 0.635
+	roc auc: 0.6359523809523808
+Strategy metrics:
+	Company: 4 of 8
+	Daily Swing Trade Return: 1.0739702518651386
+	Buy & Hold Return: 0.3947374917803824
+	Auto13($22000) Return: 4323.446763926029
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 5 of 8
+	f1_monark: 0.6857142857142857
+	accuracy: 0.6711956521739131
+	precision: 0.6839378238341969
+	recall: 0.6875
+	roc auc: 0.6704545454545454
+Strategy metrics:
+	Company: 5 of 8
+	Daily Swing Trade Return: 1.4598132573588174
+	Buy & Hold Return: -0.1768914852293746
+	Auto13($22000) Return: 175819.14495819365
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 6 of 8
+	f1_monark: 0.612565445026178
+	accuracy: 0.5978260869565217
+	precision: 0.6062176165803109
+	recall: 0.6190476190476191
+	roc auc: 0.5972333067305134
+Strategy metrics:
+	Company: 6 of 8
+	Daily Swing Trade Return: 1.4853377327745207
+	Buy & Hold Return: -0.22561345148932066
+	Auto13($22000) Return: 26918.24999561628
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 7 of 8
+	f1_monark: 0.6230366492146597
+	accuracy: 0.6086956521739131
+	precision: 0.664804469273743
+	recall: 0.5862068965517241
+	roc auc: 0.6112852664576802
+Strategy metrics:
+	Company: 7 of 8
+	Daily Swing Trade Return: 1.2774635489489543
+	Buy & Hold Return: 0.27682286357321295
+	Auto13($22000) Return: 4217.592584508133
+Model metrics:
+	loss: 0.047945816069841385
+	mean_squared_error: 0.047945816069841385
+	mean_absolute_error: 0.15863539278507233
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.94498610496521
+Class metrics:
+	Company: 8 of 8
+	f1_monark: 0.7085427135678393
+	accuracy: 0.6847826086956522
+	precision: 0.6497695852534562
+	recall: 0.7790055248618785
+	roc auc: 0.6862942062812065
+Strategy metrics:
+	Company: 8 of 8
+	Daily Swing Trade Return: 2.3854691075514873
+	Buy & Hold Return: 0.8689931350114417
+	Auto13($22000) Return: 43971.08112128146
+Model Metrics saved at saved_models/model_id-2_AAPL+MSFT+GOGL+AMZN+IBM+T+FB+YOJ.SG_I1d_F0_T2020-10_metrics.json;
+Min: [ 14.063571  31.15       2.55     248.229996  94.769997  26.76
+  22.9        2.08    ], Max: [ 134.179993  231.649994   80.800003 3531.449951  209.360001   43.470001
+  303.910004    6.45    ]
+ 1/17 [>.............................] - ETA: 0s - loss: 0.0025 - mean_squared_error: 0.0025 - mean_absolute_error: 0.0414 - accuracy: 0.0312 - cosine_proximity: 0.9920 5/17 [=======>......................] - ETA: 0s - loss: 0.0027 - mean_squared_error: 0.0027 - mean_absolute_error: 0.0384 - accuracy: 0.1250 - cosine_proximity: 0.9897 9/17 [==============>...............] - ETA: 0s - loss: 0.0038 - mean_squared_error: 0.0038 - mean_absolute_error: 0.0455 - accuracy: 0.1562 - cosine_proximity: 0.987913/17 [=====================>........] - ETA: 0s - loss: 0.0084 - mean_squared_error: 0.0084 - mean_absolute_error: 0.0655 - accuracy: 0.1082 - cosine_proximity: 0.978917/17 [==============================] - ETA: 0s - loss: 0.0168 - mean_squared_error: 0.0168 - mean_absolute_error: 0.0876 - accuracy: 0.0889 - cosine_proximity: 0.972417/17 [==============================] - 0s 13ms/step - loss: 0.0168 - mean_squared_error: 0.0168 - mean_absolute_error: 0.0876 - accuracy: 0.0889 - cosine_proximity: 0.9724
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 1 of 8
+	f1_monark: 0.6270096463022509
+	accuracy: 0.5735294117647058
+	precision: 0.609375
+	recall: 0.6456953642384106
+	roc auc: 0.5645832193092879
+Strategy metrics:
+	Company: 1 of 8
+	Daily Swing Trade Return: 1.0182619825289172
+	Buy & Hold Return: 0.5307142848460804
+	Auto13($22000) Return: 4551.022293179889
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 2 of 8
+	f1_monark: 0.6491499227202473
+	accuracy: 0.5827205882352942
+	precision: 0.625
+	recall: 0.6752411575562701
+	roc auc: 0.5672343126837144
+Strategy metrics:
+	Company: 2 of 8
+	Daily Swing Trade Return: 0.9769078995583416
+	Buy & Hold Return: 0.5366084749109767
+	Auto13($22000) Return: 2804.9954802592038
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 3 of 8
+	f1_monark: 0.5415162454873647
+	accuracy: 0.5330882352941176
+	precision: 0.528169014084507
+	recall: 0.5555555555555556
+	roc auc: 0.5332522303325223
+Strategy metrics:
+	Company: 3 of 8
+	Daily Swing Trade Return: -0.0012779552225703691
+	Buy & Hold Return: -0.08166133872224916
+	Auto13($22000) Return: 15175.075200955587
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 4 of 8
+	f1_monark: 0.6698872785829307
+	accuracy: 0.6231617647058824
+	precision: 0.6322188449848024
+	recall: 0.7123287671232876
+	roc auc: 0.6160850184822787
+Strategy metrics:
+	Company: 4 of 8
+	Daily Swing Trade Return: 0.9193110213049984
+	Buy & Hold Return: 0.399641207102739
+	Auto13($22000) Return: 3241.883516997237
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 5 of 8
+	f1_monark: 0.61
+	accuracy: 0.5698529411764706
+	precision: 0.5884244372990354
+	recall: 0.6332179930795848
+	roc auc: 0.5656286043829297
+Strategy metrics:
+	Company: 5 of 8
+	Daily Swing Trade Return: 0.9395233723876981
+	Buy & Hold Return: -0.24321494918527087
+	Auto13($22000) Return: 7163.447431313496
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 6 of 8
+	f1_monark: 0.5975395430579966
+	accuracy: 0.5790441176470589
+	precision: 0.604982206405694
+	recall: 0.5902777777777778
+	roc auc: 0.5783420138888888
+Strategy metrics:
+	Company: 6 of 8
+	Daily Swing Trade Return: 1.7911423224929794
+	Buy & Hold Return: -0.35427885372358725
+	Auto13($22000) Return: 18616.52433240426
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 7 of 8
+	f1_monark: 0.6048
+	accuracy: 0.5459558823529411
+	precision: 0.5625
+	recall: 0.6539792387543253
+	roc auc: 0.5387543252595156
+Strategy metrics:
+	Company: 7 of 8
+	Daily Swing Trade Return: 1.0095011848759659
+	Buy & Hold Return: 0.33422297307251747
+	Auto13($22000) Return: 3630.875457729242
+Model metrics:
+	loss: 0.01677818037569523
+	mean_squared_error: 0.01677818037569523
+	mean_absolute_error: 0.08763523399829865
+	accuracy: 0.08888889104127884
+	cosine_proximity: 0.9723891615867615
+Class metrics:
+	Company: 8 of 8
+	f1_monark: 0.5962264150943396
+	accuracy: 0.6066176470588235
+	precision: 0.5602836879432624
+	recall: 0.6370967741935484
+	roc auc: 0.6090889276373148
+Strategy metrics:
+	Company: 8 of 8
+	Daily Swing Trade Return: 1.6524027459954236
+	Buy & Hold Return: 0.7093821510297484
+	Auto13($22000) Return: -820.928718535295
+Model Metrics saved at saved_models/model_id-11_AAPL+MSFT+GOGL+AMZN+IBM+T+FB+YOJ.SG_I1d_F0_T2020-10_metrics.json;
+Min: [14.063571], Max: [134.179993]
+ 1/12 [=>............................] - ETA: 0s - loss: 2233.8462 - mean_squared_error: 2233.8462 - mean_absolute_error: 47.2116 - accuracy: 0.0000e+00 - cosine_similarity: 0.9994 7/12 [================>.............] - ETA: 0s - loss: 3801.3147 - mean_squared_error: 3801.3147 - mean_absolute_error: 60.7080 - accuracy: 0.0670 - cosine_similarity: 0.9988    12/12 [==============================] - 0s 7ms/step - loss: 5842.6270 - mean_squared_error: 5842.6270 - mean_absolute_error: 73.2986 - accuracy: 0.0451 - cosine_similarity: 0.9981
+Model Metrics saved at saved_models/model_id-2_AAPL_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 5842.626953125
+	mean_squared_error: 5842.626953125
+	mean_absolute_error: 73.29855346679688
+	accuracy: 0.04507042095065117
+	cosine_similarity: 0.9980592727661133
+Class metrics:
+	f1_monark: 0.9433962264150944
+	accuracy: 0.9347826086956522
+	precision: 0.9049773755656109
+	recall: 0.9852216748768473
+	roc auc: 0.9289744738020601
+Strategy metrics:
+	Daily Swing Trade Return: 273.472476
+	Buy & Hold Return: 66.79500200000001
+	Auto13($22000) Return: 14453.005659000031
+Min: [14.063571], Max: [134.179993]
+ 1/17 [>.............................] - ETA: 0s - loss: 3068.9019 - mean_squared_error: 3068.9019 - mean_absolute_error: 55.3881 - accuracy: 0.1250 - cosine_proximity: 0.9999 6/17 [=========>....................] - ETA: 0s - loss: 2267.9092 - mean_squared_error: 2267.9092 - mean_absolute_error: 47.2581 - accuracy: 0.2344 - cosine_proximity: 0.999810/17 [================>.............] - ETA: 0s - loss: 2573.8335 - mean_squared_error: 2573.8335 - mean_absolute_error: 50.2570 - accuracy: 0.2062 - cosine_proximity: 0.999815/17 [=========================>....] - ETA: 0s - loss: 3680.1946 - mean_squared_error: 3680.1946 - mean_absolute_error: 58.8952 - accuracy: 0.1729 - cosine_proximity: 0.999817/17 [==============================] - 0s 11ms/step - loss: 4710.9243 - mean_squared_error: 4710.9243 - mean_absolute_error: 64.9624 - accuracy: 0.1630 - cosine_proximity: 0.9998
+Model Metrics saved at saved_models/model_id-11_AAPL_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 4710.92431640625
+	mean_squared_error: 4710.92431640625
+	mean_absolute_error: 64.96240234375
+	accuracy: 0.16296295821666718
+	cosine_proximity: 0.9997693300247192
+Class metrics:
+	f1_monark: 0.8118195956454121
+	accuracy: 0.7775735294117647
+	precision: 0.7653958944281525
+	recall: 0.8642384105960265
+	roc auc: 0.7668299490996661
+Strategy metrics:
+	Daily Swing Trade Return: 270.5025039999999
+	Buy & Hold Return: 63.747501000000014
+	Auto13($22000) Return: 10679.40079399998
+Min: [31.15], Max: [231.649994]
+ 1/12 [=>............................] - ETA: 0s - loss: 16848.9297 - mean_squared_error: 16848.9297 - mean_absolute_error: 129.7128 - accuracy: 0.0000e+00 - cosine_similarity: 0.9997 8/12 [===================>..........] - ETA: 0s - loss: 22762.1953 - mean_squared_error: 22762.1953 - mean_absolute_error: 149.9065 - accuracy: 0.0312 - cosine_similarity: 0.9995    12/12 [==============================] - 0s 7ms/step - loss: 28046.9160 - mean_squared_error: 28046.9160 - mean_absolute_error: 164.9716 - accuracy: 0.0423 - cosine_similarity: 0.9995
+Model Metrics saved at saved_models/model_id-2_MSFT_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 28046.916015625
+	mean_squared_error: 28046.916015625
+	mean_absolute_error: 164.9716033935547
+	accuracy: 0.0422535203397274
+	cosine_similarity: 0.9994680285453796
+Class metrics:
+	f1_monark: 0.9274004683840749
+	accuracy: 0.9157608695652174
+	precision: 0.9124423963133641
+	recall: 0.9428571428571428
+	roc auc: 0.9113019891500904
+Strategy metrics:
+	Daily Swing Trade Return: 501.60007400000023
+	Buy & Hold Return: 89.12999699999999
+	Auto13($22000) Return: 12024.98176899999
+Min: [31.15], Max: [231.649994]
+ 1/17 [>.............................] - ETA: 0s - loss: 12474.3135 - mean_squared_error: 12474.3135 - mean_absolute_error: 111.6642 - accuracy: 0.2812 - cosine_proximity: 0.9999 5/17 [=======>......................] - ETA: 0s - loss: 11940.1045 - mean_squared_error: 11940.1045 - mean_absolute_error: 109.1369 - accuracy: 0.3187 - cosine_proximity: 0.999910/17 [================>.............] - ETA: 0s - loss: 15209.7402 - mean_squared_error: 15209.7402 - mean_absolute_error: 122.4471 - accuracy: 0.3125 - cosine_proximity: 0.999915/17 [=========================>....] - ETA: 0s - loss: 20286.2012 - mean_squared_error: 20286.2012 - mean_absolute_error: 139.4608 - accuracy: 0.2562 - cosine_proximity: 0.999817/17 [==============================] - 0s 12ms/step - loss: 22952.9961 - mean_squared_error: 22952.9961 - mean_absolute_error: 147.3333 - accuracy: 0.2389 - cosine_proximity: 0.9998
+Model Metrics saved at saved_models/model_id-11_MSFT_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 22952.99609375
+	mean_squared_error: 22952.99609375
+	mean_absolute_error: 147.33328247070312
+	accuracy: 0.23888888955116272
+	cosine_proximity: 0.999840497970581
+Class metrics:
+	f1_monark: 0.7018072289156626
+	accuracy: 0.6360294117647058
+	precision: 0.660056657223796
+	recall: 0.7491961414790996
+	roc auc: 0.6170873411258159
+Strategy metrics:
+	Daily Swing Trade Return: 299.9899729999999
+	Buy & Hold Return: 107.58999599999999
+	Auto13($22000) Return: 4457.659152
+Min: [2.55], Max: [80.800003]
+ 1/12 [=>............................] - ETA: 0s - loss: 25.6695 - mean_squared_error: 25.6695 - mean_absolute_error: 5.0444 - accuracy: 0.4062 - cosine_similarity: 0.9971 8/12 [===================>..........] - ETA: 0s - loss: 26.2621 - mean_squared_error: 26.2621 - mean_absolute_error: 5.0040 - accuracy: 0.1445 - cosine_similarity: 0.992612/12 [==============================] - 0s 7ms/step - loss: 22.9828 - mean_squared_error: 22.9828 - mean_absolute_error: 4.6674 - accuracy: 0.1577 - cosine_similarity: 0.9917
+Model Metrics saved at saved_models/model_id-2_GOGL_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 22.982786178588867
+	mean_squared_error: 22.982786178588867
+	mean_absolute_error: 4.6674346923828125
+	accuracy: 0.15774647891521454
+	cosine_similarity: 0.9916692972183228
+Class metrics:
+	f1_monark: 0.9487870619946093
+	accuracy: 0.9483695652173914
+	precision: 0.9565217391304348
+	recall: 0.9411764705882353
+	roc auc: 0.9484887877803055
+Strategy metrics:
+	Daily Swing Trade Return: 22.090000000000003
+	Buy & Hold Return: -1.8499999999999996
+	Auto13($22000) Return: 28288.769999999975
+Min: [2.55], Max: [80.800003]
+ 1/17 [>.............................] - ETA: 0s - loss: 85.2777 - mean_squared_error: 85.2777 - mean_absolute_error: 9.2287 - accuracy: 0.0625 - cosine_proximity: 0.9998 6/17 [=========>....................] - ETA: 0s - loss: 45.2503 - mean_squared_error: 45.2503 - mean_absolute_error: 6.5440 - accuracy: 0.1094 - cosine_proximity: 0.999511/17 [==================>...........] - ETA: 0s - loss: 39.6791 - mean_squared_error: 39.6791 - mean_absolute_error: 6.1709 - accuracy: 0.1051 - cosine_proximity: 0.999616/17 [===========================>..] - ETA: 0s - loss: 31.7470 - mean_squared_error: 31.7470 - mean_absolute_error: 5.4127 - accuracy: 0.1113 - cosine_proximity: 0.999317/17 [==============================] - 0s 11ms/step - loss: 30.8052 - mean_squared_error: 30.8052 - mean_absolute_error: 5.3228 - accuracy: 0.1093 - cosine_proximity: 0.9993
+Model Metrics saved at saved_models/model_id-11_GOGL_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 30.805212020874023
+	mean_squared_error: 30.805212020874023
+	mean_absolute_error: 5.322795867919922
+	accuracy: 0.10925926268100739
+	cosine_proximity: 0.9993045330047607
+Class metrics:
+	f1_monark: 0.6731141199226306
+	accuracy: 0.6893382352941176
+	precision: 0.7044534412955465
+	recall: 0.6444444444444445
+	roc auc: 0.6890105433901054
+Strategy metrics:
+	Daily Swing Trade Return: 16.02
+	Buy & Hold Return: -6.3899999999999935
+	Auto13($22000) Return: 8135.749999999989
+Min: [248.229996], Max: [3531.449951]
+ 1/12 [=>............................] - ETA: 0s - loss: 3436468.5000 - mean_squared_error: 3436468.5000 - mean_absolute_error: 1852.7061 - accuracy: 0.1250 - cosine_similarity: 0.9997 8/12 [===================>..........] - ETA: 0s - loss: 3688302.5000 - mean_squared_error: 3688302.5000 - mean_absolute_error: 1911.2308 - accuracy: 0.1172 - cosine_similarity: 0.999512/12 [==============================] - 0s 7ms/step - loss: 5184604.0000 - mean_squared_error: 5184604.0000 - mean_absolute_error: 2213.2500 - accuracy: 0.1042 - cosine_similarity: 0.9989
+Model Metrics saved at saved_models/model_id-2_AMZN_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 5184604.0
+	mean_squared_error: 5184604.0
+	mean_absolute_error: 2213.25
+	accuracy: 0.10422535240650177
+	cosine_similarity: 0.9989435076713562
+Class metrics:
+	f1_monark: 0.9552238805970149
+	accuracy: 0.9510869565217391
+	precision: 0.9504950495049505
+	recall: 0.96
+	roc auc: 0.9502380952380952
+Strategy metrics:
+	Daily Swing Trade Return: 6807.789301999994
+	Buy & Hold Return: 1296.0100099999997
+	Auto13($22000) Return: 16388.319082000016
+Min: [248.229996], Max: [3531.449951]
+ 1/17 [>.............................] - ETA: 0s - loss: 3809105.5000 - mean_squared_error: 3809105.5000 - mean_absolute_error: 1950.9022 - accuracy: 0.2188 - cosine_proximity: 0.9998 5/17 [=======>......................] - ETA: 0s - loss: 2986843.0000 - mean_squared_error: 2986843.0000 - mean_absolute_error: 1721.7727 - accuracy: 0.2688 - cosine_proximity: 0.999710/17 [================>.............] - ETA: 0s - loss: 3176857.2500 - mean_squared_error: 3176857.2500 - mean_absolute_error: 1777.4763 - accuracy: 0.2500 - cosine_proximity: 0.999815/17 [=========================>....] - ETA: 0s - loss: 3805295.5000 - mean_squared_error: 3805295.5000 - mean_absolute_error: 1923.0891 - accuracy: 0.2875 - cosine_proximity: 0.999817/17 [==============================] - 0s 11ms/step - loss: 4521035.0000 - mean_squared_error: 4521035.0000 - mean_absolute_error: 2064.7502 - accuracy: 0.2722 - cosine_proximity: 0.9998
+Model Metrics saved at saved_models/model_id-11_AMZN_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 4521035.0
+	mean_squared_error: 4521035.0
+	mean_absolute_error: 2064.750244140625
+	accuracy: 0.27222222089767456
+	cosine_proximity: 0.9997640252113342
+Class metrics:
+	f1_monark: 0.6521739130434782
+	accuracy: 0.6176470588235294
+	precision: 0.6372549019607843
+	recall: 0.6678082191780822
+	roc auc: 0.6136660143509459
+Strategy metrics:
+	Daily Swing Trade Return: 3761.150144000002
+	Buy & Hold Return: 1312.1099860000002
+	Auto13($22000) Return: 7600.560297999968
+Min: [94.769997], Max: [209.360001]
+ 1/12 [=>............................] - ETA: 0s - loss: 18101.0312 - mean_squared_error: 18101.0312 - mean_absolute_error: 134.4937 - accuracy: 0.2500 - cosine_similarity: 0.9999 7/12 [================>.............] - ETA: 0s - loss: 18485.0254 - mean_squared_error: 18485.0254 - mean_absolute_error: 135.5377 - accuracy: 0.1339 - cosine_similarity: 0.998212/12 [==============================] - 0s 7ms/step - loss: 17195.3027 - mean_squared_error: 17195.3027 - mean_absolute_error: 130.6781 - accuracy: 0.1296 - cosine_similarity: 0.9977
+Model Metrics saved at saved_models/model_id-2_IBM_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 17195.302734375
+	mean_squared_error: 17195.302734375
+	mean_absolute_error: 130.6780548095703
+	accuracy: 0.12957745790481567
+	cosine_similarity: 0.9977308511734009
+Class metrics:
+	f1_monark: 0.8730158730158729
+	accuracy: 0.8695652173913043
+	precision: 0.8870967741935484
+	recall: 0.859375
+	roc auc: 0.8700284090909091
+Strategy metrics:
+	Daily Swing Trade Return: 290.5100120000001
+	Buy & Hold Return: -20.269995999999992
+	Auto13($22000) Return: 7895.86063499999
+Min: [94.769997], Max: [209.360001]
+ 1/17 [>.............................] - ETA: 0s - loss: 21905.4727 - mean_squared_error: 21905.4727 - mean_absolute_error: 147.9792 - accuracy: 0.1875 - cosine_proximity: 0.9999 5/17 [=======>......................] - ETA: 0s - loss: 17798.1094 - mean_squared_error: 17798.1094 - mean_absolute_error: 132.8863 - accuracy: 0.3000 - cosine_proximity: 0.999810/17 [================>.............] - ETA: 0s - loss: 18420.1992 - mean_squared_error: 18420.1992 - mean_absolute_error: 135.3932 - accuracy: 0.2781 - cosine_proximity: 0.999914/17 [=======================>......] - ETA: 0s - loss: 17906.5566 - mean_squared_error: 17906.5566 - mean_absolute_error: 133.3412 - accuracy: 0.2768 - cosine_proximity: 0.999717/17 [==============================] - 0s 12ms/step - loss: 17433.6348 - mean_squared_error: 17433.6348 - mean_absolute_error: 131.5727 - accuracy: 0.2648 - cosine_proximity: 0.9997
+Model Metrics saved at saved_models/model_id-11_IBM_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 17433.634765625
+	mean_squared_error: 17433.634765625
+	mean_absolute_error: 131.57272338867188
+	accuracy: 0.2648148238658905
+	cosine_proximity: 0.9996923208236694
+Class metrics:
+	f1_monark: 0.9140893470790378
+	accuracy: 0.9080882352941176
+	precision: 0.9078498293515358
+	recall: 0.9204152249134948
+	roc auc: 0.9072664359861591
+Strategy metrics:
+	Daily Swing Trade Return: 421.86003299999993
+	Buy & Hold Return: -27.870002
+	Auto13($22000) Return: 12948.290578999993
+Min: [26.76], Max: [43.470001]
+ 1/12 [=>............................] - ETA: 0s - loss: 1017.4796 - mean_squared_error: 1017.4796 - mean_absolute_error: 31.8895 - accuracy: 0.1875 - cosine_similarity: 0.9998 8/12 [===================>..........] - ETA: 0s - loss: 1203.4836 - mean_squared_error: 1203.4836 - mean_absolute_error: 34.5408 - accuracy: 0.0859 - cosine_similarity: 0.999412/12 [==============================] - 0s 7ms/step - loss: 1112.5178 - mean_squared_error: 1112.5178 - mean_absolute_error: 33.1637 - accuracy: 0.0732 - cosine_similarity: 0.9993
+Model Metrics saved at saved_models/model_id-2_T_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 1112.517822265625
+	mean_squared_error: 1112.517822265625
+	mean_absolute_error: 33.16370391845703
+	accuracy: 0.07323943823575974
+	cosine_similarity: 0.9993371963500977
+Class metrics:
+	f1_monark: 0.9396325459317585
+	accuracy: 0.9375
+	precision: 0.9322916666666666
+	recall: 0.9470899470899471
+	roc auc: 0.9372321243829623
+Strategy metrics:
+	Daily Swing Trade Return: 69.94001600000007
+	Buy & Hold Return: -3.7700010000000006
+	Auto13($22000) Return: 8384.341558000036
+Min: [26.76], Max: [43.470001]
+ 1/17 [>.............................] - ETA: 0s - loss: 1073.1259 - mean_squared_error: 1073.1259 - mean_absolute_error: 32.7507 - accuracy: 0.2812 - cosine_proximity: 0.9999 5/17 [=======>......................] - ETA: 0s - loss: 951.5790 - mean_squared_error: 951.5790 - mean_absolute_error: 30.8177 - accuracy: 0.2937 - cosine_proximity: 0.9997  10/17 [================>.............] - ETA: 0s - loss: 1068.9723 - mean_squared_error: 1068.9723 - mean_absolute_error: 32.5814 - accuracy: 0.2812 - cosine_proximity: 0.999815/17 [=========================>....] - ETA: 0s - loss: 1082.2655 - mean_squared_error: 1082.2655 - mean_absolute_error: 32.7467 - accuracy: 0.2583 - cosine_proximity: 0.999717/17 [==============================] - 0s 11ms/step - loss: 1055.5903 - mean_squared_error: 1055.5903 - mean_absolute_error: 32.3316 - accuracy: 0.2463 - cosine_proximity: 0.9996
+Model Metrics saved at saved_models/model_id-11_T_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 1055.59033203125
+	mean_squared_error: 1055.59033203125
+	mean_absolute_error: 32.33163070678711
+	accuracy: 0.24629630148410797
+	cosine_proximity: 0.9996311664581299
+Class metrics:
+	f1_monark: 0.9568221070811744
+	accuracy: 0.9540441176470589
+	precision: 0.9518900343642611
+	recall: 0.9618055555555556
+	roc auc: 0.9535590277777778
+Strategy metrics:
+	Daily Swing Trade Return: 96.0200210000001
+	Buy & Hold Return: -5.919999999999998
+	Auto13($22000) Return: 13678.713209999973
+Min: [22.9], Max: [303.910004]
+ 1/12 [=>............................] - ETA: 0s - loss: 33219.0234 - mean_squared_error: 33219.0234 - mean_absolute_error: 182.0694 - accuracy: 0.0000e+00 - cosine_similarity: 0.9994 8/12 [===================>..........] - ETA: 0s - loss: 36731.0469 - mean_squared_error: 36731.0469 - mean_absolute_error: 190.9621 - accuracy: 0.1016 - cosine_similarity: 0.9994    12/12 [==============================] - 0s 7ms/step - loss: 44027.2461 - mean_squared_error: 44027.2461 - mean_absolute_error: 207.4225 - accuracy: 0.0901 - cosine_similarity: 0.9992
+Model Metrics saved at saved_models/model_id-2_FB_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 44027.24609375
+	mean_squared_error: 44027.24609375
+	mean_absolute_error: 207.42251586914062
+	accuracy: 0.09014084190130234
+	cosine_similarity: 0.999241292476654
+Class metrics:
+	f1_monark: 0.9203980099502488
+	accuracy: 0.9130434782608695
+	precision: 0.9296482412060302
+	recall: 0.9113300492610837
+	roc auc: 0.9132407822062995
+Strategy metrics:
+	Daily Swing Trade Return: 660.2100049999997
+	Buy & Hold Return: 77.78999400000004
+	Auto13($22000) Return: 13618.969273999995
+Min: [22.9], Max: [303.910004]
+ 1/17 [>.............................] - ETA: 0s - loss: 27100.4746 - mean_squared_error: 27100.4746 - mean_absolute_error: 164.5067 - accuracy: 0.3125 - cosine_proximity: 0.9999 6/17 [=========>....................] - ETA: 0s - loss: 25993.5547 - mean_squared_error: 25993.5547 - mean_absolute_error: 160.3487 - accuracy: 0.2083 - cosine_proximity: 0.999811/17 [==================>...........] - ETA: 0s - loss: 31000.1250 - mean_squared_error: 31000.1250 - mean_absolute_error: 174.7560 - accuracy: 0.1960 - cosine_proximity: 0.999815/17 [=========================>....] - ETA: 0s - loss: 34138.7422 - mean_squared_error: 34138.7422 - mean_absolute_error: 182.7887 - accuracy: 0.1875 - cosine_proximity: 0.999817/17 [==============================] - 0s 12ms/step - loss: 38066.8125 - mean_squared_error: 38066.8125 - mean_absolute_error: 191.7131 - accuracy: 0.1926 - cosine_proximity: 0.9998
+Model Metrics saved at saved_models/model_id-11_FB_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 38066.8125
+	mean_squared_error: 38066.8125
+	mean_absolute_error: 191.713134765625
+	accuracy: 0.192592591047287
+	cosine_proximity: 0.9997519254684448
+Class metrics:
+	f1_monark: 0.701639344262295
+	accuracy: 0.6654411764705882
+	precision: 0.6666666666666666
+	recall: 0.740484429065744
+	roc auc: 0.6604382929642445
+Strategy metrics:
+	Daily Swing Trade Return: 504.5900159999999
+	Buy & Hold Return: 93.91999900000002
+	Auto13($22000) Return: 5883.180122000009
+Min: [2.08], Max: [6.45]
+ 1/12 [=>............................] - ETA: 0s - loss: 5.8470 - mean_squared_error: 5.8470 - mean_absolute_error: 2.4172 - accuracy: 0.0625 - cosine_similarity: 0.9988 7/12 [================>.............] - ETA: 0s - loss: 7.5259 - mean_squared_error: 7.5259 - mean_absolute_error: 2.7161 - accuracy: 0.1027 - cosine_similarity: 0.998112/12 [==============================] - 0s 7ms/step - loss: 10.7461 - mean_squared_error: 10.7461 - mean_absolute_error: 3.1757 - accuracy: 0.0986 - cosine_similarity: 0.9978
+Model Metrics saved at saved_models/model_id-2_YOJ.SG_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 10.746058464050293
+	mean_squared_error: 10.746058464050293
+	mean_absolute_error: 3.1756772994995117
+	accuracy: 0.09859155118465424
+	cosine_similarity: 0.9977696537971497
+Class metrics:
+	f1_monark: 0.8860103626943004
+	accuracy: 0.8804347826086957
+	precision: 0.8341463414634146
+	recall: 0.9447513812154696
+	roc auc: 0.8814665996986437
+Strategy metrics:
+	Daily Swing Trade Return: 15.017500000000005
+	Buy & Hold Return: 3.7975000000000003
+	Auto13($22000) Return: 19296.29800000004
+Min: [2.08], Max: [6.45]
+ 1/17 [>.............................] - ETA: 0s - loss: 7.5628 - mean_squared_error: 7.5628 - mean_absolute_error: 2.7491 - accuracy: 0.1250 - cosine_proximity: 0.9998 5/17 [=======>......................] - ETA: 0s - loss: 5.8749 - mean_squared_error: 5.8749 - mean_absolute_error: 2.4131 - accuracy: 0.0938 - cosine_proximity: 0.9566 9/17 [==============>...............] - ETA: 0s - loss: 5.8445 - mean_squared_error: 5.8445 - mean_absolute_error: 2.4100 - accuracy: 0.1042 - cosine_proximity: 0.972214/17 [=======================>......] - ETA: 0s - loss: 7.0991 - mean_squared_error: 7.0991 - mean_absolute_error: 2.6360 - accuracy: 0.1339 - cosine_proximity: 0.982017/17 [==============================] - 0s 13ms/step - loss: 9.1632 - mean_squared_error: 9.1632 - mean_absolute_error: 2.9266 - accuracy: 0.1463 - cosine_proximity: 0.9849
+Model Metrics saved at saved_models/model_id-11_YOJ.SG_I1d_F0_T2020-10trunc20130429_metrics.json;
+Model metrics:
+	loss: 9.163154602050781
+	mean_squared_error: 9.163154602050781
+	mean_absolute_error: 2.9266345500946045
+	accuracy: 0.14629629254341125
+	cosine_proximity: 0.9849171042442322
+Class metrics:
+	f1_monark: 0.8516377649325626
+	accuracy: 0.8584558823529411
+	precision: 0.8154981549815498
+	recall: 0.8911290322580645
+	roc auc: 0.8611050566695728
+Strategy metrics:
+	Daily Swing Trade Return: 16.922499999999996
+	Buy & Hold Return: 3.100000000000001
+	Auto13($22000) Return: 22859.246000000006
+
+
+Total delta time is 63.48679447174072 s
+python3 .tmp_pythoN/stock_pred.py --qp3
+

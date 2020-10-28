@@ -594,32 +594,40 @@ def autoBuy13(total_money_to_invest,stock_real_array,stock_pred_array,saving_per
     current_money=total_money_to_invest
     for i in range(len(real_stock_delta)){
         if pred_stock_delta[i] > 0 and stock_real_array[i-1]>0{
-            stock_buy_price=stock_real_array[i-1]
-            stock_predicted_sell_price=stock_pred_array[i]
-            predicted_valuing=stock_predicted_sell_price/stock_buy_price
-            max_stocks_possible=math.floor(current_money/stock_buy_price)
-            if (max_stocks_possible<0){
-                max_stocks_possible=0
-            }
-            if corret_predicts_in_a_row ==0{
-                lucky_randomness=rd.uniform(.02,.07)
-            }elif corret_predicts_in_a_row ==1{
-                lucky_randomness=rd.uniform(.04,.09)
-            }elif corret_predicts_in_a_row >=2{
-                extra=(corret_predicts_in_a_row/7)
-                if extra>1{
-                    extra=1
+            stocks_to_buy=0
+            try{
+                stock_buy_price=stock_real_array[i-1]
+                stock_predicted_sell_price=stock_pred_array[i]
+                predicted_valuing=stock_predicted_sell_price/stock_buy_price
+                max_stocks_possible=math.floor(current_money/stock_buy_price)
+                if (max_stocks_possible<0){
+                    max_stocks_possible=0
                 }
-                lucky_randomness=rd.uniform(.07,.13)+.13*extra
-            }
-            confidence=(-1+(e**(predicted_valuing**.6/1.13))**0.5)/5
-            multiplier=(lucky_randomness+confidence)/2
-            if multiplier > 0.23{
-                multiplier=0.23
-            }
-            stocks_to_buy=math.ceil(max_stocks_possible*multiplier)
-            if stocks_to_buy<2{
-                stocks_to_buy=2
+                if corret_predicts_in_a_row ==0{
+                    lucky_randomness=rd.uniform(.02,.07)
+                }elif corret_predicts_in_a_row ==1{
+                    lucky_randomness=rd.uniform(.04,.09)
+                }elif corret_predicts_in_a_row >=2{
+                    extra=(corret_predicts_in_a_row/7)
+                    if extra>1{
+                        extra=1
+                    }
+                    lucky_randomness=rd.uniform(.07,.13)+.13*extra
+                }
+                confidence=(-1+(e**(predicted_valuing**.6/1.13))**0.5)/5
+                multiplier=(lucky_randomness+confidence)/2
+                if multiplier > 0.23{
+                    multiplier=0.23
+                }
+                stocks_to_buy=math.ceil(max_stocks_possible*multiplier)
+                if stocks_to_buy<2{
+                    stocks_to_buy=2
+                }
+            }except Exception as e{
+                print("Error on auto13")
+                print(type(e))  
+                print(e.args)     
+                print(e)
             }
             if real_stock_delta[i]<0{
                 corret_predicts_in_a_row=0
