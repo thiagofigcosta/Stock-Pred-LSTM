@@ -41,17 +41,17 @@ def createFolderIfNotExists(path){
     }
 }
 
-def stringToSTimestamp(string,include_time=False){
+def stringToSTimestamp(string,include_time=False,date_format=DATE_FORMAT){
     if not include_time {
-        return int(time.mktime(datetime.strptime(string,DATE_FORMAT).timetuple()))
+        return int(time.mktime(datetime.strptime(string,date_format).timetuple()))
     }else{
         return int(time.mktime(datetime.strptime(string,DATETIME_FORMAT).timetuple()))
     }
 }
 
-def sTimestampToString(timestamp,include_time=False){
+def sTimestampToString(timestamp,include_time=False,date_format=DATE_FORMAT){
     if not include_time {
-        return datetime.fromtimestamp(timestamp).strftime(DATE_FORMAT)
+        return datetime.fromtimestamp(timestamp).strftime(date_format)
     }else{
         return datetime.fromtimestamp(timestamp).strftime(DATETIME_FORMAT)
     }
@@ -396,6 +396,10 @@ def loadDataset(paths,input_size,output_size,company_index_array=[0],train_field
         date_index_array=None
         if index_field is not None{
             date_index_array = pd.to_datetime(full_data[i][index_field])
+            if from_date is not None{
+                from_date_formated=sTimestampToString(stringToSTimestamp(from_date),date_format='%Y-%m-%d')
+                date_index_array=date_index_array[date_index_array >= from_date_formated]
+            }
             full_data[i][index_field] = date_index_array
             full_data[i].set_index(index_field, inplace=True)
         }
@@ -1151,28 +1155,35 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             printDict(strategy_metrics,'Strategy metrics')
 
             if plot_graphs{
-                magic=0 # hyperparameters['amount_companies']-1 #?
-                input_size=hyperparameters['backwards_samples']
-                output_size=hyperparameters['forward_samples']
+                try {
+                    magic=0 # hyperparameters['amount_companies']-1 #?
+                    input_size=hyperparameters['backwards_samples']
+                    output_size=hyperparameters['forward_samples']
 
-                plt.plot(test_date_index[input_size+magic:-output_size+1],Y_test_unwraped, label='Real')
-                plt.plot(test_date_index[input_size+magic:],Y_test_pred_first_val, color='r', label='Predicted F')
-                plt.plot(test_date_index[input_size+magic:],Y_test_pred_last_val, label='Predicted L')
-                plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Predicted Mean')
-                plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
-                plt.title('Training stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
-                plt.legend(loc='best')
-                plt.show() 
+                    plt.plot(test_date_index[input_size+magic:-output_size+1],Y_test_unwraped, label='Real')
+                    plt.plot(test_date_index[input_size+magic:],Y_test_pred_first_val, color='r', label='Predicted F')
+                    plt.plot(test_date_index[input_size+magic:],Y_test_pred_last_val, label='Predicted L')
+                    plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Predicted Mean')
+                    plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
+                    plt.title('Training stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
+                    plt.legend(loc='best')
+                    plt.show() 
 
-                full_date_index=train_date_index[1:-input_size]+test_date_index
-                plt.plot(full_date_index[input_size+magic:-(output_size-1)],Y_full, label='Real Full data')
-                plt.plot(train_date_index[input_size+2+magic:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
-                plt.plot(train_date_index[input_size+2+magic:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
-                plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Test Predicted Mean')
-                plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
-                plt.title('Complete stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
-                plt.legend(loc='best')
-                plt.show() 
+                    full_date_index=train_date_index[1:-input_size]+test_date_index
+                    plt.plot(full_date_index[input_size+magic:-(output_size-1)],Y_full, label='Real Full data')
+                    plt.plot(train_date_index[input_size+2+magic:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
+                    plt.plot(train_date_index[input_size+2+magic:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
+                    plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Test Predicted Mean')
+                    plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
+                    plt.title('Complete stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
+                    plt.legend(loc='best')
+                    plt.show() 
+                }except Exception as e {
+                    print("Error on plot (single company)")
+                    print(type(e))  
+                    print(e.args)     
+                    print(e)
+                }
             }
         }
 
@@ -1209,26 +1220,33 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
         printDict(strategy_metrics,'Strategy metrics')
 
         if plot_graphs{
-            input_size=hyperparameters['backwards_samples']
-            output_size=hyperparameters['forward_samples']
-            plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
-            plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
-            plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
-            plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
-            plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
-            plt.title('Training stock values {}'.format(stock_name))
-            plt.legend(loc='best')
-            plt.show() 
+            try{
+                input_size=hyperparameters['backwards_samples']
+                output_size=hyperparameters['forward_samples']
+                plt.plot(test_date_index[input_size:-output_size+1],Y_test_unwraped, label='Real')
+                plt.plot(test_date_index[input_size:],Y_test_pred_first_val, color='r', label='Predicted F')
+                plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
+                plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
+                plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
+                plt.title('Training stock values {}'.format(stock_name))
+                plt.legend(loc='best')
+                plt.show() 
 
-            full_date_index=train_date_index[1:-input_size]+test_date_index
-            plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
-            plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
-            plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
-            plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
-            plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
-            plt.title('Complete stock values {}'.format(stock_name))
-            plt.legend(loc='best')
-            plt.show() 
+                full_date_index=train_date_index[1:-input_size]+test_date_index
+                plt.plot(full_date_index[input_size:-(output_size-1)],Y_full, label='Real Full data')
+                plt.plot(train_date_index[input_size+2:],Y_train_pred_mean_val[:-(output_size-1)], label='Train Predicted Mean')
+                plt.plot(train_date_index[input_size+2:],Y_train_pred_fl_mean_val[:-(output_size-1)], label='Train Predicted FL Mean')
+                plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Test Predicted Mean')
+                plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Test Predicted FL Mean')
+                plt.title('Complete stock values {}'.format(stock_name))
+                plt.legend(loc='best')
+                plt.show() 
+            }except Exception as e {
+                print("Error on plot (single company)")
+                print(type(e))  
+                print(e.args)     
+                print(e)
+            }
         }
     }
 }
