@@ -1151,7 +1151,7 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
             printDict(strategy_metrics,'Strategy metrics')
 
             if plot_graphs{
-                magic=hyperparameters['amount_companies']-1 #?
+                magic=0 # hyperparameters['amount_companies']-1 #?
                 input_size=hyperparameters['backwards_samples']
                 output_size=hyperparameters['forward_samples']
 
