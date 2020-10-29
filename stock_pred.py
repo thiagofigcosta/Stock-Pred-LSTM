@@ -1398,7 +1398,7 @@ def QP6(plot_and_load=True){
 
 def main(argv){
     HELP_STR=r'Pytho{N}.py stock_pred.py [-d|--download-datasets] [[--qp1 | --qp2 | --qp3 | --qp4 | --qp6] [--train_without_plot]] [--test-all-test-trained-models [--start-at <value>] --dataset-paths <values>] [--restore-best-checkpoints] [--train-all-test-models [--start-at <value>] --dataset-paths <values>] [--download-stock [--use-hour-interval] --stock-name <value> --start-date <value> --end-date <value>]'
-    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models","restore-best-checkpoints","qp1","qp2","qp3","qp4","qp5"]
+    modules=["download-datasets","download-stock","train-all-test-models","test-all-test-trained-models","restore-best-checkpoints","qp1","qp2","qp3","qp4","qp6"]
     modules_to_run=[]
     args=[]
     
