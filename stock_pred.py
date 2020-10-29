@@ -113,13 +113,13 @@ def getStockHistoryOneDay(stock_name,filename,start_date=sTimestampToString(0),e
     }
 }
 
-def getStockOnlineHistoryOneHour(stock_name,filename,data_range='730d',start_timestamp='',end_timestamp=''){
+def getStockOnlineHistoryOneHour(stock_name,filename,data_range='730d',start_timestamp='',end_timestamp='',interval='60m'){
     # data_range maximum value is 730d
     # data_range minimum value is 1m
     if not start_timestamp or not end_timestamp{
-        base_url='https://query1.finance.yahoo.com/v7/finance/spark?symbols={}&range={}&interval=60m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance'.format(stock_name,data_range)
+        base_url='https://query1.finance.yahoo.com/v7/finance/spark?symbols={}&range={}&interval={}&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance'.format(stock_name,data_range,interval)
     }else{
-        base_url='https://query1.finance.yahoo.com/v7/finance/spark?symbols={}&period1={}&period2={}&interval=60m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance'.format(stock_name,start_timestamp,end_timestamp)
+        base_url='https://query1.finance.yahoo.com/v7/finance/spark?symbols={}&period1={}&period2={}&interval={}&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance'.format(stock_name,start_timestamp,end_timestamp,interval)
     } 
     print(base_url)
     with urllib.request.urlopen(base_url) as response{
@@ -1263,14 +1263,17 @@ def downloadAllReferenceDatasets(){
         getStockHistoryOneDay(stock,filename,start_date=QP1_3_6_start_date,end_date=QP1_3_6_end_date)
     }
 
-    QP4_start_dates=['01/01/2010','01/01/2011','01/01/2012','01/01/2013','01/01/2014','01/01/2015','01/01/2016','01/01/2017','01/01/2018','01/01/2019','01/01/2020']
-    QP4_end_dates=  ['31/12/2010','31/12/2011','31/12/2012','31/12/2013','31/12/2014','31/12/2015','31/12/2016','31/12/2017','31/12/2018','31/12/2019',limit_date_2020]
+    # QP4_start_dates=['01/01/2010','01/01/2011','01/01/2012','01/01/2013','01/01/2014','01/01/2015','01/01/2016','01/01/2017','01/01/2018','01/01/2019','01/01/2020']
+    # QP4_end_dates=  ['31/12/2010','31/12/2011','31/12/2012','31/12/2013','31/12/2014','31/12/2015','31/12/2016','31/12/2017','31/12/2018','31/12/2019',limit_date_2020]
     QP4_stocks=['PBR','TSLA','BTC-USD','VALE']
     for stock in QP4_stocks{
-        for i in range(len(QP4_start_dates)){
-            filename=DATASET_PATH+'{}_I1h_R1y_S{}.csv'.format(stock,extractFromStrDate(QP4_start_dates[i])[2])
-            getStockOnlineHistoryOneHour(stock,filename,start_timestamp=stringToSTimestamp(QP4_start_dates[i]),end_timestamp=stringToSTimestamp(QP4_end_dates[i]))
-        }
+        filename=DATASET_PATH+'{}_I1h_R1y_rngmax.csv'.format(stock)
+        getStockOnlineHistoryOneHour(stock,filename,data_range='max')
+        # for i in range(len(QP4_start_dates)){
+            # API cannot work with start and end
+            # filename=DATASET_PATH+'{}_I1h_R1y_S{}.csv'.format(stock,extractFromStrDate(QP4_start_dates[i])[2])
+            # getStockOnlineHistoryOneHour(stock,filename,start_timestamp=stringToSTimestamp(QP4_start_dates[i]),end_timestamp=stringToSTimestamp(QP4_end_dates[i]))
+        # }
     }
 }
 
@@ -1366,25 +1369,21 @@ def QP3(plot_and_load=True){
 }
 
 def QP4(plot_and_load=True){
-    dataset_paths=[['datasets/PBR_I1h_R1y_S2010.csv','datasets/PBR_I1h_R1y_S2011.csv',
-    'datasets/PBR_I1h_R1y_S2012.csv','datasets/PBR_I1h_R1y_S2013.csv','datasets/PBR_I1h_R1y_S2014.csv',
-    'datasets/PBR_I1h_R1y_S2015.csv','datasets/PBR_I1h_R1y_S2016.csv','datasets/PBR_I1h_R1y_S2017.csv',
-    'datasets/PBR_I1h_R1y_S2018.csv','datasets/PBR_I1h_R1y_S2019.csv','datasets/PBR_I1h_R1y_S2020.csv'],
-    ['datasets/TSLA_I1h_R1y_S2010.csv','datasets/TSLA_I1h_R1y_S2011.csv','datasets/TSLA_I1h_R1y_S2012.csv',
-    'datasets/TSLA_I1h_R1y_S2013.csv','datasets/TSLA_I1h_R1y_S2014.csv','datasets/TSLA_I1h_R1y_S2015.csv',
-    'datasets/TSLA_I1h_R1y_S2016.csv','datasets/TSLA_I1h_R1y_S2017.csv','datasets/TSLA_I1h_R1y_S2018.csv',
-    'datasets/TSLA_I1h_R1y_S2019.csv','datasets/TSLA_I1h_R1y_S2020.csv'],
-    ['datasets/BTC-USD_I1h_R1y_S2010.csv','datasets/BTC-USD_I1h_R1y_S2011.csv','datasets/BTC-USD_I1h_R1y_S2012.csv',
-    'datasets/BTC-USD_I1h_R1y_S2013.csv','datasets/BTC-USD_I1h_R1y_S2014.csv','datasets/BTC-USD_I1h_R1y_S2015.csv',
-    'datasets/BTC-USD_I1h_R1y_S2016.csv','datasets/BTC-USD_I1h_R1y_S2017.csv','datasets/BTC-USD_I1h_R1y_S2018.csv',
-    'datasets/BTC-USD_I1h_R1y_S2019.csv','datasets/BTC-USD_I1h_R1y_S2020.csv'],
-    ['datasets/VALE_I1h_R1y_S2010.csv','datasets/VALE_I1h_R1y_S2011.csv','datasets/VALE_I1h_R1y_S2012.csv',
-    'datasets/VALE_I1h_R1y_S2013.csv','datasets/VALE_I1h_R1y_S2014.csv','datasets/VALE_I1h_R1y_S2015.csv',
-    'datasets/VALE_I1h_R1y_S2016.csv','datasets/VALE_I1h_R1y_S2017.csv','datasets/VALE_I1h_R1y_S2018.csv',
-    'datasets/VALE_I1h_R1y_S2019.csv','datasets/VALE_I1h_R1y_S2020.csv']] 
+    dataset_paths=['datasets/PBR_I1h_R1y_rngmax.csv','datasets/TSLA_I1h_R1y_rngmax.csv','datasets/VALE_I1h_R1y_rngmax.csv','datasets/BTC-USD_I1h_R1y_rngmax.csv']
+        
     for dataset in dataset_paths{
         loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
         loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+    }
+
+    baseline_dataset_paths=[('datasets/PBR_I1d_F0_T2020-10.csv','01/08/2000'),
+    ('datasets/TSLA_I1d_F0_T2020-10.csv','01/06/2010'),
+    ('datasets/VALE_I1d_F0_T2020-10.csv','01/03/2002'),
+    ('datasets/BTC-USD_I1d_F0_T2020-10.csv','14/09/2014')]
+        
+    for dataset in baseline_dataset_paths{
+        loadTrainAndSaveModel(model_id=2,dataset_paths=dataset[0],from_date=dataset[1],load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=11,dataset_paths=dataset[0],from_date=dataset[1],load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 
