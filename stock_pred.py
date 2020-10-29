@@ -1389,7 +1389,7 @@ def QP4(plot_and_load=True){
 }
 
 def QP6(plot_and_load=True){
-    dataset_paths=['datasets/IBM_I1d_F0_T2020-10.csv','KO_I1d_F0_T2020-10.csv']
+    dataset_paths=['datasets/IBM_I1d_F0_T2020-10.csv','datasets/KO_I1d_F0_T2020-10.csv']
     for dataset in dataset_paths{
         loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
         loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
