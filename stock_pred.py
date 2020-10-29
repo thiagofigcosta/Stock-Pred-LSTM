@@ -1165,7 +1165,7 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
                     plt.plot(test_date_index[input_size+magic:],Y_test_pred_last_val, label='Predicted L')
                     plt.plot(test_date_index[input_size+magic:],Y_test_pred_mean_val, label='Predicted Mean')
                     plt.plot(test_date_index[input_size+magic:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
-                    plt.title('Training stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
+                    plt.title('Testing stock values {} - Company {} of {}'.format(stock_name,i+1,hyperparameters['amount_companies']))
                     plt.legend(loc='best')
                     plt.show() 
 
@@ -1228,7 +1228,7 @@ def loadTrainAndSaveModel(model_id,dataset_paths=[],load_instead_of_training=Fal
                 plt.plot(test_date_index[input_size:],Y_test_pred_last_val, label='Predicted L')
                 plt.plot(test_date_index[input_size:],Y_test_pred_mean_val, label='Predicted Mean')
                 plt.plot(test_date_index[input_size:],Y_test_pred_fl_mean_val, label='Predicted FL Mean')
-                plt.title('Training stock values {}'.format(stock_name))
+                plt.title('Testing stock values {}'.format(stock_name))
                 plt.legend(loc='best')
                 plt.show() 
 
@@ -1391,7 +1391,8 @@ def QP4(plot_and_load=True){
 def QP6(plot_and_load=True){
     dataset_paths=['datasets/IBM_I1d_F0_T2020-10.csv','KO_I1d_F0_T2020-10.csv']
     for dataset in dataset_paths{
-        loadTrainAndSaveModel(model_id=0,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=2,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
+        loadTrainAndSaveModel(model_id=11,dataset_paths=dataset,load_instead_of_training=plot_and_load,plot_graphs=plot_and_load)
     }
 }
 

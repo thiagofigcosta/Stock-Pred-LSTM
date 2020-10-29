@@ -1,5 +1,7 @@
 # Stock-Pred-LSTM
 
+## To run
+
 >- To download referecence datasets
 ```
 python3 Pytho\{N\}.py stock_pred.py --download-datasets
@@ -32,4 +34,33 @@ python3 Pytho\{N\}.py stock_pred.py --qp2
 python3 Pytho\{N\}.py stock_pred.py --qp3
 python3 Pytho\{N\}.py stock_pred.py --qp4
 python3 Pytho\{N\}.py stock_pred.py --qp6
+```
+
+## Wildcard to isolate qp models
+>- QP1
+```
+mkdir qp1
+cp saved_models/*_I1d_F0_T2020-10* qp1/
+rm -rf qp1/*IFs6*
+rm -rf qp1/*trunc*
+rm -rf qp1/*+*
+```
+
+>- QP2
+```
+mkdir qp2
+cp saved_models/*IFs6* qp2/
+```
+
+>- QP3
+```
+mkdir qp3
+cp saved_models/*trunc* qp3/
+cp saved_models/*+* qp3/
+```
+
+>- QP4
+```
+mkdir qp4
+cp saved_models/*I1h* qp4/
 ```
